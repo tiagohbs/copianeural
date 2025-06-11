@@ -1,58 +1,70 @@
-import React, { useEffect, useRef } from 'react';
+import { FC, useCallback } from 'react';
+import Particles from 'react-tsparticles';
+import { loadFull } from 'tsparticles';
+import type { Engine } from 'tsparticles-engine';
 
-/**
- * Componente de fundo com partículas animadas
- * Cria um efeito visual de partículas flutuantes no estilo espacial
- */
-function ParticleBackground() {
-  const containerRef = useRef<HTMLDivElement>(null);
+interface ParticleBackgroundProps {
+  className?: string;
+}
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Criar partículas
-    const createParticle = () => {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      
-      // Posição aleatória
-      particle.style.left = Math.random() * 100 + '%';
-      particle.style.top = Math.random() * 100 + '%';
-      
-      // Tamanho aleatório
-      const size = Math.random() * 3 + 1;
-      particle.style.width = size + 'px';
-      particle.style.height = size + 'px';
-      
-      // Duração da animação aleatória
-      particle.style.animationDuration = (Math.random() * 4 + 3) + 's';
-      particle.style.animationDelay = Math.random() * 2 + 's';
-      
-      container.appendChild(particle);
-      
-      // Remover partícula após um tempo
-      setTimeout(() => {
-        if (container.contains(particle)) {
-          container.removeChild(particle);
-        }
-      }, 8000);
-    };
-
-    // Criar partículas iniciais
-    for (let i = 0; i < 50; i++) {
-      setTimeout(createParticle, i * 100);
-    }
-
-    // Continuar criando partículas
-    const interval = setInterval(createParticle, 200);
-
-    return () => {
-      clearInterval(interval);
-    };
+const ParticleBackground: FC<ParticleBackgroundProps> = ({ className = '' }) => {
+  const particlesInit = useCallback(async (engine: Engine) => {
+    await loadFull(engine);
   }, []);
 
-  return <div ref={containerRef} className="particle-bg" />;
-}
+  return (
+    <Particles
+      id="tsparticles"
+      init={particlesInit}
+      className={`absolute inset-0 ${className}`}
+      options={{
+        background: {
+          color: {
+            value: 'transparent',
+          },
+        },
+        fpsLimit: 60,
+        particles: {
+          color: {
+            value: ['#a855f7', '#9333ea', '#7e22ce', '#6b21a8'],
+          },
+          links: {
+            color: '#a855f7',
+            distance: 150,
+            enable: true,
+            opacity: 0.2,
+            width: 1,
+          },
+          move: {
+            enable: true,
+            outModes: {
+              default: 'bounce',
+            },
+            random: true,
+            speed: 0.8,
+            straight: false,
+          },
+          number: {
+            density: {
+              enable: true,
+              area: 800,
+            },
+            value: 40,
+          },
+          opacity: {
+            value: 0.3,
+          },
+          shape: {
+            type: 'circle',
+          },
+          size: {
+            value: { min: 1, max: 3 },
+          },
+        },
+        detectRetina: true,
+      }}
+    />
+  );
+};
 
 export default ParticleBackground;
