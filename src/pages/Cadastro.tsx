@@ -126,151 +126,139 @@ const Cadastro: FC = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6 bg-gray-900/80 backdrop-blur-sm p-8 rounded-xl border border-purple-500/20">
               <div>
-    <div className="min-h-screen bg-black text-white">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-center mb-8">
-            Criar Conta em <span className="text-purple-500">The Forged Souls</span>
-          </h1>
+                <label htmlFor="nome" className="block text-sm font-medium text-gray-300 mb-1">
+                  Nome Completo
+                </label>
+                <input
+                  type="text"
+                  id="nome"
+                  name="nome"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
+                           text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
+                           transition-colors"
+                  required
+                />
+              </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6 bg-gray-900 p-8 rounded-xl">
-            <div>
-              <label htmlFor="nome" className="block text-sm font-medium text-gray-300 mb-1">
-                Nome Completo
-              </label>
-              <input
-                type="text"
-                id="nome"
-                name="nome"
-                value={formData.nome}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
-                         transition-colors"
-                required
-              />
-            </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
+                           text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
+                           transition-colors"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
-                         transition-colors"
-                required
-              />
-            </div>
+              <div>
+                <label htmlFor="dataNascimento" className="block text-sm font-medium text-gray-300 mb-1">
+                  Data de Nascimento
+                </label>
+                <input
+                  type="date"
+                  id="dataNascimento"
+                  name="dataNascimento"
+                  value={formData.dataNascimento}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
+                           text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
+                           transition-colors"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="dataNascimento" className="block text-sm font-medium text-gray-300 mb-1">
-                Data de Nascimento
-              </label>
-              <input
-                type="date"
-                id="dataNascimento"
-                name="dataNascimento"
-                value={formData.dataNascimento}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
-                         transition-colors"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="senha" className="block text-sm font-medium text-gray-300 mb-1">
-                Senha
-              </label>
-              <input
-                type="password"
-                id="senha"
-                name="senha"
-                value={formData.senha}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
-                         transition-colors"
-                required
-              />
-              {formData.senha && (
-                <div className="mt-2">
-                  <div className="h-1 w-full bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${getStrengthColor(senhaStrength.score)} transition-all duration-300`}
-                      style={{ width: `${(senhaStrength.score / 5) * 100}%` }}
-                    />
+              <div>
+                <label htmlFor="senha" className="block text-sm font-medium text-gray-300 mb-1">
+                  Senha
+                </label>
+                <input
+                  type="password"
+                  id="senha"
+                  name="senha"
+                  value={formData.senha}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
+                           text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
+                           transition-colors"
+                  required
+                />
+                {formData.senha && (
+                  <div className="mt-2">
+                    <div className="h-1 w-full bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${getStrengthColor(senhaStrength.score)} transition-all duration-300`}
+                        style={{ width: `${(senhaStrength.score / 5) * 100}%` }}
+                      />
+                    </div>
+                    {senhaStrength.feedback && (
+                      <p className="text-sm text-gray-400 mt-1">{senhaStrength.feedback}</p>
+                    )}
                   </div>
-                  {senhaStrength.feedback && (
-                    <p className="text-sm text-gray-400 mt-1">{senhaStrength.feedback}</p>
-                  )}
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <div>
-              <label htmlFor="confirmarSenha" className="block text-sm font-medium text-gray-300 mb-1">
-                Confirmar Senha
-              </label>
-              <input
-                type="password"
-                id="confirmarSenha"
-                name="confirmarSenha"
-                value={formData.confirmarSenha}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
-                         transition-colors"
-                required
-              />
-            </div>
+              <div>
+                <label htmlFor="confirmarSenha" className="block text-sm font-medium text-gray-300 mb-1">
+                  Confirmar Senha
+                </label>
+                <input
+                  type="password"
+                  id="confirmarSenha"
+                  name="confirmarSenha"
+                  value={formData.confirmarSenha}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
+                           text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
+                           transition-colors"
+                  required
+                />
+              </div>
 
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="aceiteTermos"
-                name="aceiteTermos"
-                checked={formData.aceiteTermos}
-                onChange={handleChange}
-                className="w-4 h-4 text-purple-500 border-gray-700 rounded
-                         focus:ring-purple-500 focus:ring-offset-gray-900"
-                required
-              />
-              <label htmlFor="aceiteTermos" className="text-sm text-gray-300">
-                Eu li e aceito os{' '}
-                <a href="/termos" className="text-purple-400 hover:text-purple-300">
-                  Termos de Uso
-                </a>{' '}
-                e a{' '}
-                <a href="/privacidade" className="text-purple-400 hover:text-purple-300">
-                  Política de Privacidade
-                </a>
-              </label>
-            </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="aceiteTermos"
+                  name="aceiteTermos"
+                  checked={formData.aceiteTermos}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-purple-500 border-gray-700 rounded
+                           focus:ring-purple-500 focus:ring-offset-gray-900"
+                  required
+                />
+                <label htmlFor="aceiteTermos" className="text-sm text-gray-300">
+                  Eu li e aceito os{' '}
+                  <a href="/termos" className="text-purple-400 hover:text-purple-300">
+                    Termos de Uso
+                  </a>
+                  {' '}e{' '}
+                  <a href="/privacidade" className="text-purple-400 hover:text-purple-300">
+                    Política de Privacidade
+                  </a>
+                </label>
+              </div>
 
-            <button
-              type="submit"
-              className="w-full py-3 px-4 bg-purple-600 text-white rounded-lg
-                       hover:bg-purple-700 focus:outline-none focus:ring-2
-                       focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900
-                       transition-colors"
-            >
-              Criar Conta
-            </button>
-          </form>
-        </div>
-      </main>
-
-      <Footer />
+              <button
+                type="submit"
+                className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg
+                         transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500
+                         focus:ring-offset-2 focus:ring-offset-gray-900"
+              >
+                Criar Conta
+              </button>
+            </form>
+          </div>
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 };
