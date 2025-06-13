@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ParticleBackground from '../components/ParticleBackground';
+import { useGame } from '../contexts/GameContext';
+import { Character } from '../types/game';
 
 interface PersonagemData {
   nome: string;
@@ -14,6 +16,7 @@ interface PersonagemData {
 
 const CriarPersonagem: FC = () => {
   const navigate = useNavigate();
+  const { dispatch } = useGame();
   const [personagem, setPersonagem] = useState<PersonagemData>({
     nome: '',
     classe: '',
@@ -59,11 +62,24 @@ const CriarPersonagem: FC = () => {
       return;
     }
 
-    // Aqui você implementaria a lógica de criação do personagem
-    // Por exemplo, salvar no localStorage ou enviar para uma API
-    console.log('Personagem criado:', personagem);
-    
-    // Redirecionar para a página de seleção de personagens
+    // Criar personagem no formato do contexto global
+    const novoPersonagem: Character = {
+      id: Date.now().toString(),
+      name: personagem.nome,
+      level: 1,
+      experience: 0,
+      experienceToNext: 100,
+      health: 100,
+      maxHealth: 100,
+      attributes: {
+        forca: 5,
+        vitalidade: 5,
+        agilidade: 5,
+        sinergiaCosmica: 5
+      },
+      createdAt: new Date()
+    };
+    dispatch({ type: 'ADD_CHARACTER', payload: novoPersonagem });
     navigate('/selecao-personagem');
   };
 
