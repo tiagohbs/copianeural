@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { Plus, Trash2, Play, Sword, Shield, Zap, Star } from 'lucide-react';
 
@@ -8,15 +8,23 @@ import { Plus, Trash2, Play, Sword, Shield, Zap, Star } from 'lucide-react';
  */
 function CharacterSelectionScreen() {
   const { state, dispatch } = useGame();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const handleSelectCharacter = (characterId: string) => {
-    dispatch({ type: 'SELECT_CHARACTER', payload: characterId });
-    dispatch({ type: 'SET_SCREEN', payload: 'game-hub' });
+  const handleSelectCard = (characterId: string) => {
+    setSelectedId(characterId);
+  };
+
+  const handlePlay = () => {
+    if (selectedId) {
+      dispatch({ type: 'SELECT_CHARACTER', payload: selectedId });
+      dispatch({ type: 'SET_SCREEN', payload: 'game-hub' });
+    }
   };
 
   const handleDeleteCharacter = (characterId: string) => {
     if (confirm('Tem certeza que deseja excluir este personagem? Esta ação não pode ser desfeita.')) {
       dispatch({ type: 'DELETE_CHARACTER', payload: characterId });
+      if (selectedId === characterId) setSelectedId(null);
     }
   };
 
@@ -40,14 +48,18 @@ function CharacterSelectionScreen() {
         {/* Lista de personagens */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {state.characters.map((character) => (
-            <div key={character.id} className="cosmic-panel p-6 group hover:scale-105 transition-transform duration-300">
+            <div
+              key={character.id}
+              className={`cosmic-panel p-6 group hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedId === character.id ? 'ring-4 ring-purple-500/80 scale-105' : ''}`}
+              onClick={() => handleSelectCard(character.id)}
+            >
               {/* Cabeçalho do card */}
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-medieval font-bold text-white truncate">
                   {character.name}
                 </h3>
                 <button
-                  onClick={() => handleDeleteCharacter(character.id)}
+                  onClick={e => { e.stopPropagation(); handleDeleteCharacter(character.id); }}
                   className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all duration-300"
                   title="Excluir personagem"
                 >
@@ -95,15 +107,6 @@ function CharacterSelectionScreen() {
                 </div>
               </div>
 
-              {/* Botão de seleção */}
-              <button
-                onClick={() => handleSelectCharacter(character.id)}
-                className="btn-cosmic w-full flex items-center justify-center space-x-2"
-              >
-                <Play className="w-4 h-4" />
-                <span>Selecionar</span>
-              </button>
-
               {/* Data de criação */}
               <div className="text-xs text-gray-500 text-center mt-3">
                 Criado em {new Date(character.createdAt).toLocaleDateString('pt-BR')}
@@ -128,6 +131,18 @@ function CharacterSelectionScreen() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Botão Jogar */}
+        <div className="text-center mt-8">
+          <button
+            onClick={handlePlay}
+            disabled={!selectedId}
+            className={`btn-cosmic px-8 py-3 text-lg font-bold ${!selectedId ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <Play className="w-5 h-5 inline-block mr-2" />
+            Jogar
+          </button>
         </div>
 
         {/* Mensagem quando não há personagens */}

@@ -2,6 +2,7 @@ import { FC, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ParticleBackground from '../components/ParticleBackground';
+import { useGame } from '../contexts/GameContext';
 
 interface PersonagemData {
   nome: string;
@@ -12,6 +13,7 @@ interface PersonagemData {
 }
 
 const CriarPersonagem: FC = () => {
+  const { dispatch } = useGame();
   const [personagem, setPersonagem] = useState<PersonagemData>({
     nome: '',
     classe: '',
@@ -40,7 +42,7 @@ const CriarPersonagem: FC = () => {
 
   const generos = ['Masculino', 'Feminino'];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setPersonagem(prev => ({
       ...prev,
@@ -51,9 +53,9 @@ const CriarPersonagem: FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Aqui você implementaria a lógica de criação do personagem
-    console.log('Dados do personagem:', personagem);
-    // Redirecionar para o jogo
-    window.location.href = '/jogo';
+    // Exemplo: dispatch({ type: 'ADD_CHARACTER', payload: personagem });
+    // Redirecionar para a seleção de personagens
+    dispatch({ type: 'SET_SCREEN', payload: 'character-selection' });
   };
 
   return (
