@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { Plus, Trash2, Play, Sword, Shield, Zap, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Tela de seleção de personagem
@@ -9,6 +10,7 @@ import { Plus, Trash2, Play, Sword, Shield, Zap, Star } from 'lucide-react';
 function CharacterSelectionScreen() {
   const { state, dispatch } = useGame();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleSelectCard = (characterId: string) => {
     setSelectedId(characterId);
@@ -17,7 +19,7 @@ function CharacterSelectionScreen() {
   const handlePlay = () => {
     if (selectedId) {
       dispatch({ type: 'SELECT_CHARACTER', payload: selectedId });
-      dispatch({ type: 'SET_SCREEN', payload: 'game-hub' });
+      navigate('/jogo');
     }
   };
 
@@ -29,7 +31,7 @@ function CharacterSelectionScreen() {
   };
 
   const handleCreateNew = () => {
-    dispatch({ type: 'SET_SCREEN', payload: 'character-creation' });
+    navigate('/criar-personagem');
   };
 
   return (

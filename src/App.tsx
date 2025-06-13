@@ -8,6 +8,8 @@ import Footer from './components/Footer';
 import Cadastro from './pages/Cadastro';
 import Verificacao from './pages/Verificacao';
 import CriarPersonagem from './pages/CriarPersonagem';
+import CharacterSelectionScreen from './components/screens/CharacterSelectionScreen';
+import GameHubScreen from './components/screens/GameHubScreen';
 
 /**
  * Componente principal da aplicação RPG Medieval Espacial
@@ -36,6 +38,8 @@ const App: FC = () => {
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/verificacao" element={<Verificacao />} />
           <Route path="/criar-personagem" element={<CriarPersonagem />} />
+          <Route path="/selecao-personagem" element={<CharacterSelectionScreen />} />
+          <Route path="/jogo" element={<GameHubScreen />} />
           {/* Adicione mais rotas conforme necessário */}
         </Routes>
       </div>

@@ -63,10 +63,8 @@ const CriarPersonagem: FC = () => {
     // Por exemplo, salvar no localStorage ou enviar para uma API
     console.log('Personagem criado:', personagem);
     
-    // Redirecionar para a página inicial ou uma página de seleção de personagens
-    // Como não temos uma rota específica para seleção de personagens no React Router,
-    // vamos redirecionar para a página inicial
-    navigate('/');
+    // Redirecionar para a página de seleção de personagens
+    navigate('/selecao-personagem');
   };
 
   return (
