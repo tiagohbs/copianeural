@@ -38,7 +38,7 @@ const CriarPersonagem: FC = () => {
     'Gnomo'
   ];
 
-  const generos = ['Masculino', 'Feminino', 'Não-binário'];
+  const generos = ['Masculino', 'Feminino'];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
