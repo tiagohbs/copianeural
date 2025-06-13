@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { Character, CharacterAttributes } from '../../types/game';
 import { Zap, Shield, Sword, Star, ArrowLeft, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Tela de criação de personagem
@@ -9,6 +10,7 @@ import { Zap, Shield, Sword, Star, ArrowLeft, Check } from 'lucide-react';
  */
 function CharacterCreationScreen() {
   const { dispatch } = useGame();
+  const navigate = useNavigate();
   const [characterName, setCharacterName] = useState('');
   const [attributes, setAttributes] = useState<CharacterAttributes>({
     forca: 1,
@@ -100,7 +102,7 @@ function CharacterCreationScreen() {
         {/* Cabeçalho */}
         <div className="flex items-center justify-between mb-8">
           <button
-            onClick={() => dispatch({ type: 'SET_SCREEN', payload: 'character-selection' })}
+            onClick={() => navigate('/selecao-personagem')}
             className="flex items-center text-gray-400 hover:text-alien-glow transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
