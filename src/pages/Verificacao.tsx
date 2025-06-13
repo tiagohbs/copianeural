@@ -2,11 +2,13 @@ import { FC, useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ParticleBackground from '../components/ParticleBackground';
+import { useNavigate } from 'react-router-dom';
 
 const Verificacao: FC = () => {
   const [codigo, setCodigo] = useState(['', '', '', '', '', '']);
   const [tempoRestante, setTempoRestante] = useState(300); // 5 minutos em segundos
   const [etapa, setEtapa] = useState(1);
+  const navigate = useNavigate();
 
   // Simulação de envio do código
   useEffect(() => {
@@ -62,15 +64,12 @@ const Verificacao: FC = () => {
     // Simulação de verificação bem-sucedida
     if (codigoCompleto.length === 6) {
       setEtapa(2);
+      navigate('/selecao-personagem');
     }
   };
 
   const handleVerificacaoFinal = () => {
-    // Simular verificação final
-    setTimeout(() => {
-      // Redirecionar para a página de criação de personagem
-      window.location.href = '/criar-personagem';
-    }, 1500);
+    // Removido o redirecionamento automático para criar personagem
   };
 
   return (
@@ -163,19 +162,10 @@ const Verificacao: FC = () => {
                     </div>
 
                     <p className="text-gray-300">
-                      Sua conta foi verificada com sucesso!
-                      Agora você pode criar seu personagem e começar sua aventura.
+                      Sua conta foi verificada com sucesso!<br/>
+                      Agora você pode criar seu personagem e começar sua aventura quando quiser.<br/>
+                      Use o botão "Criar Novo Personagem" na próxima tela.
                     </p>
-
-                    <button
-                      onClick={handleVerificacaoFinal}
-                      className="w-full py-3 px-4 bg-purple-600 text-white rounded-lg
-                               hover:bg-purple-700 focus:outline-none focus:ring-2
-                               focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900
-                               transition-colors"
-                    >
-                      Criar Personagem
-                    </button>
                   </div>
                 </>
               )}
