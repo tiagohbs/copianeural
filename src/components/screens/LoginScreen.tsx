@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { User, Lock, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Tela de login e registro
@@ -8,6 +9,7 @@ import { User, Lock, Sparkles } from 'lucide-react';
  */
 function LoginScreen() {
   const { dispatch } = useGame();
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -38,7 +40,7 @@ function LoginScreen() {
     };
 
     dispatch({ type: 'SET_USER', payload: user });
-    dispatch({ type: 'SET_SCREEN', payload: 'character-selection' });
+    navigate('/selecao-personagem');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

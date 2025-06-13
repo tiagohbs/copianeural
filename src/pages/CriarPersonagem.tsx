@@ -68,20 +68,20 @@ const CriarPersonagem: FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-emerald-950 to-slate-900 text-white relative overflow-hidden font-sans">
       <ParticleBackground />
       <div className="relative z-10">
         <Header />
         
         <main className="container mx-auto px-4 py-12">
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold text-center mb-8">
+            <h1 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-600 bg-clip-text text-transparent font-sans">
               Criar Seu Personagem
             </h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6 bg-gray-900/80 backdrop-blur-sm p-8 rounded-xl border border-purple-500/20">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-emerald-950/80 backdrop-blur-sm p-8 rounded-xl border border-emerald-500/20 shadow-lg">
               <div>
-                <label htmlFor="nome" className="block text-sm font-medium text-gray-300 mb-1">
+                <label htmlFor="nome" className="block text-sm font-medium text-emerald-200 mb-1 font-sans">
                   Nome do Personagem
                 </label>
                 <input
@@ -90,15 +90,13 @@ const CriarPersonagem: FC = () => {
                   name="nome"
                   value={personagem.nome}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                           text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
-                           transition-colors"
+                  className="w-full px-4 py-2 bg-emerald-900 border border-emerald-700 rounded-lg text-white placeholder-emerald-400 focus:outline-none focus:border-emerald-400 transition-colors font-sans"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="classe" className="block text-sm font-medium text-gray-300 mb-1">
+                <label htmlFor="classe" className="block text-sm font-medium text-emerald-200 mb-1 font-sans">
                   Classe
                 </label>
                 <select
@@ -106,8 +104,7 @@ const CriarPersonagem: FC = () => {
                   name="classe"
                   value={personagem.classe}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                           text-white focus:outline-none focus:border-purple-500 transition-colors"
+                  className="w-full px-4 py-2 bg-emerald-900 border border-emerald-700 rounded-lg text-white focus:outline-none focus:border-emerald-400 transition-colors font-sans"
                   required
                 >
                   <option value="">Selecione uma classe</option>
@@ -120,7 +117,7 @@ const CriarPersonagem: FC = () => {
               </div>
 
               <div>
-                <label htmlFor="raca" className="block text-sm font-medium text-gray-300 mb-1">
+                <label htmlFor="raca" className="block text-sm font-medium text-emerald-200 mb-1 font-sans">
                   Raça
                 </label>
                 <select
@@ -128,8 +125,7 @@ const CriarPersonagem: FC = () => {
                   name="raca"
                   value={personagem.raca}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                           text-white focus:outline-none focus:border-purple-500 transition-colors"
+                  className="w-full px-4 py-2 bg-emerald-900 border border-emerald-700 rounded-lg text-white focus:outline-none focus:border-emerald-400 transition-colors font-sans"
                   required
                 >
                   <option value="">Selecione uma raça</option>
@@ -142,7 +138,7 @@ const CriarPersonagem: FC = () => {
               </div>
 
               <div>
-                <label htmlFor="genero" className="block text-sm font-medium text-gray-300 mb-1">
+                <label htmlFor="genero" className="block text-sm font-medium text-emerald-200 mb-1 font-sans">
                   Gênero
                 </label>
                 <select
@@ -150,8 +146,7 @@ const CriarPersonagem: FC = () => {
                   name="genero"
                   value={personagem.genero}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                           text-white focus:outline-none focus:border-purple-500 transition-colors"
+                  className="w-full px-4 py-2 bg-emerald-900 border border-emerald-700 rounded-lg text-white focus:outline-none focus:border-emerald-400 transition-colors font-sans"
                   required
                 >
                   <option value="">Selecione um gênero</option>
@@ -164,7 +159,7 @@ const CriarPersonagem: FC = () => {
               </div>
 
               <div>
-                <label htmlFor="aparicao" className="block text-sm font-medium text-gray-300 mb-1">
+                <label htmlFor="aparicao" className="block text-sm font-medium text-emerald-200 mb-1 font-sans">
                   Descrição da Aparência
                 </label>
                 <textarea
@@ -172,9 +167,7 @@ const CriarPersonagem: FC = () => {
                   name="aparicao"
                   value={personagem.aparicao}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg
-                           text-white placeholder-gray-400 focus:outline-none focus:border-purple-500
-                           transition-colors h-32 resize-none"
+                  className="w-full px-4 py-2 bg-emerald-900 border border-emerald-700 rounded-lg text-white placeholder-emerald-400 focus:outline-none focus:border-emerald-400 transition-colors h-32 resize-none font-sans"
                   placeholder="Descreva a aparência do seu personagem..."
                   required
                 />
@@ -182,10 +175,7 @@ const CriarPersonagem: FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 px-4 bg-purple-600 text-white rounded-lg
-                         hover:bg-purple-700 focus:outline-none focus:ring-2
-                         focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900
-                         transition-colors"
+                className="w-full py-3 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-emerald-950 transition-colors font-bold font-sans shadow"
               >
                 Criar Personagem
               </button>

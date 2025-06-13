@@ -34,17 +34,30 @@ function CharacterSelectionScreen() {
     navigate('/criar-personagem');
   };
 
+  const handleLogout = () => {
+    dispatch({ type: 'SET_USER', payload: null });
+    navigate('/');
+  };
+
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen p-4 bg-gradient-to-br from-emerald-900 via-emerald-950 to-slate-900 font-sans">
       <div className="max-w-4xl mx-auto">
         {/* Cabeçalho */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-medieval font-bold bg-gradient-to-r from-cosmic-gold via-alien-crystal to-alien-glow bg-clip-text text-transparent mb-4">
-            Câmara de Criogenia
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Selecione ou crie um personagem para iniciar sua jornada
-          </p>
+        <div className="flex justify-between items-center mb-12">
+          <div className="text-center w-full">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-600 bg-clip-text text-transparent mb-2 font-sans">
+              Câmara de Criogenia
+            </h1>
+            <p className="text-emerald-200 text-lg font-medium">
+              Selecione ou crie um personagem para iniciar sua jornada
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="ml-4 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-semibold shadow transition-colors"
+          >
+            Sair
+          </button>
         </div>
 
         {/* Lista de personagens */}
