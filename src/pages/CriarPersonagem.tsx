@@ -1,8 +1,8 @@
 import { FC, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ParticleBackground from '../components/ParticleBackground';
-import { useGame } from '../contexts/GameContext';
 
 interface PersonagemData {
   nome: string;
@@ -13,7 +13,7 @@ interface PersonagemData {
 }
 
 const CriarPersonagem: FC = () => {
-  const { dispatch } = useGame();
+  const navigate = useNavigate();
   const [personagem, setPersonagem] = useState<PersonagemData>({
     nome: '',
     classe: '',
@@ -52,10 +52,21 @@ const CriarPersonagem: FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar se todos os campos obrigatórios estão preenchidos
+    if (!personagem.nome || !personagem.classe || !personagem.raca || !personagem.genero || !personagem.aparicao) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
     // Aqui você implementaria a lógica de criação do personagem
-    // Exemplo: dispatch({ type: 'ADD_CHARACTER', payload: personagem });
-    // Redirecionar para a seleção de personagens
-    dispatch({ type: 'SET_SCREEN', payload: 'character-selection' });
+    // Por exemplo, salvar no localStorage ou enviar para uma API
+    console.log('Personagem criado:', personagem);
+    
+    // Redirecionar para a página inicial ou uma página de seleção de personagens
+    // Como não temos uma rota específica para seleção de personagens no React Router,
+    // vamos redirecionar para a página inicial
+    navigate('/');
   };
 
   return (
@@ -190,4 +201,4 @@ const CriarPersonagem: FC = () => {
   );
 };
 
-export default CriarPersonagem; 
+export default CriarPersonagem;
