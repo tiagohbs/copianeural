@@ -2,133 +2,102 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
-import SimplexNoise from "../../utils/simplex-noise";
+import noise, { setNoiseSeed, setNoiseDetail } from "../../utils/perlin";
 
-// Instâncias de ruído para diferentes camadas (Red Blob Games technique)
-const noiseElevation = new SimplexNoise(12345);
-const noiseMoisture = new SimplexNoise(54321);
-const noiseDetail = new SimplexNoise(67890);
-
-// Função de altura seguindo Red Blob Games - múltiplas octaves
-function getHeight(x: number, y: number): number {
-  // Octaves de ruído (frequências diferentes)
-  const octave1 = noiseElevation.noise2D(x * 0.01, y * 0.01) * 1.0;    // Grandes montanhas
-  const octave2 = noiseElevation.noise2D(x * 0.02, y * 0.02) * 0.5;    // Colinas médias
-  const octave3 = noiseElevation.noise2D(x * 0.04, y * 0.04) * 0.25;   // Detalhes pequenos
-  
-  // Soma das octaves (Red Blob Games technique)
-  let elevation = octave1 + octave2 + octave3;
-  
-  // Normalização (divide pela soma das amplitudes)
-  elevation = elevation / (1.0 + 0.5 + 0.25);
-  
-  // Redistribuição para criar vales planos (Red Blob Games technique)
-  elevation = Math.pow(elevation, 2.5);
-  
-  // Escala para altura final
-  return elevation * 8 - 2; // Range: -2 a 6
-}
-
-// Função de umidade (moisture) para biomas
-function getMoisture(x: number, y: number): number {
-  // Usa frequência diferente para evitar correlação com elevação
-  const moisture = noiseMoisture.noise2D(x * 0.015, y * 0.015);
-  return (moisture + 1) / 2; // Normaliza para 0-1
-}
-
-// Função procedural para gerar elementos
-function pseudoRandom(x: number, z: number, seed = 42) {
-  return Math.abs(Math.sin(x * 12.9898 + z * 78.233 + seed) * 43758.5453) % 1;
-}
-
-// Sistema de biomas baseado em Red Blob Games
-function getBiome(elevation: number, moisture: number, gameMode: string = 'hunt'): string {
-  switch (gameMode) {
-    case 'hunt':
-      // Modo Caça: Grama e Floresta
-      if (elevation < -1.0) return 'water';
-      if (elevation < 0.0) return 'grass';
-      if (elevation < 1.0 && moisture > 0.6) return 'forest';
-      if (elevation < 1.0) return 'grass';
-      if (elevation < 2.5) return 'hills';
-      return 'mountain';
-      
-    case 'explore':
-      // Modo Exploração: Desértico
-      if (elevation < -1.0) return 'oasis';
-      if (elevation < 0.0) return 'sand';
-      if (elevation < 1.0) return 'dunes';
-      if (elevation < 2.5) return 'rocky';
-      return 'mountain';
-      
-    case 'dungeon':
-      // Modo Masmorra: Terreno escuro
-      if (elevation < -1.0) return 'void';
-      if (elevation < 0.0) return 'dark_ground';
-      if (elevation < 1.0) return 'dark_forest';
-      if (elevation < 2.5) return 'dark_hills';
-      return 'dark_mountain';
-      
-    default:
-      // Padrão: Grama e Floresta
-      if (elevation < -1.0) return 'water';
-      if (elevation < 0.0) return 'grass';
-      if (elevation < 1.0 && moisture > 0.6) return 'forest';
-      if (elevation < 1.0) return 'grass';
-      if (elevation < 2.5) return 'hills';
-      return 'mountain';
+// Parâmetros de terreno por modo
+const TERRAIN_PRESETS: Record<string, {
+  seed: number;
+  scale: number;
+  octaves: number;
+  persistence: number;
+  lacunarity: number;
+  biomas: (h: number, m: number) => string;
+  heightMult?: number;
+}> = {
+  hunt: {
+    seed: 12345,
+    scale: 0.045, // escala menor = mais suave
+    octaves: 4,
+    persistence: 0.7, // mais persistência = menos contraste
+    lacunarity: 2.0,
+    heightMult: 1.5, // altura máxima reduzida
+    biomas: (h, m) => {
+      if (h < -1.5) return '#3ec6ff'; // água
+      if (h < -0.5) return '#e3d7a3'; // areia
+      if (h < 1.5 && m > 0.6) return '#228B22'; // floresta
+      if (h < 1.5) return '#7ec850'; // grama
+      if (h < 3) return '#bdb76b'; // colina
+      return '#cccccc'; // montanha
+    }
+  },
+  dungeon: {
+    seed: 54321,
+    scale: 0.12,
+    octaves: 4,
+    persistence: 0.6,
+    lacunarity: 2.5,
+    biomas: (h, m) => {
+      if (h < -1.2) return '#22223b'; // abismo
+      if (h < 0.5) return '#444466'; // pedra
+      if (h < 2) return '#6c757d'; // rocha
+      return '#bdbdbd'; // caverna clara
+    }
+  },
+  explore: {
+    seed: 67890,
+    scale: 0.06,
+    octaves: 6,
+    persistence: 0.45,
+    lacunarity: 2.1,
+    biomas: (h, m) => {
+      if (h < -1.2) return '#b3e6ff'; // lago
+      if (h < 0.2) return '#e3e3a3'; // campo aberto
+      if (h < 1.5 && m > 0.5) return '#4caf50'; // floresta densa
+      if (h < 2.5) return '#c2b280'; // colina seca
+      return '#f5f5f5'; // pico
+    }
+  },
+  tournament: {
+    seed: 24680,
+    scale: 0.09,
+    octaves: 3,
+    persistence: 0.7,
+    lacunarity: 1.8,
+    biomas: (h, m) => {
+      if (h < -0.8) return '#d4af37'; // arena dourada
+      if (h < 1.2) return '#e5c07b'; // areia
+      return '#c678dd'; // platô roxo
+    }
   }
+};
+
+// Inicializa o Perlin Noise com base no modo de jogo
+function initNoise(gameMode: string) {
+  const { seed, octaves, persistence } = TERRAIN_PRESETS[gameMode] || TERRAIN_PRESETS['hunt'];
+  setNoiseSeed(seed);
+  setNoiseDetail(octaves, persistence);
 }
 
-// Cores dos biomas por modo de jogo
-function getTerrainColor(elevation: number, moisture: number, gameMode: string = 'hunt'): string {
-  const biome = getBiome(elevation, moisture, gameMode);
-  
-  switch (gameMode) {
-    case 'hunt':
-      // Modo Caça: Grama e Floresta
-      switch (biome) {
-        case 'water': return '#3ec6ff';
-        case 'grass': return '#7ec850';
-        case 'forest': return '#228B22';
-        case 'hills': return '#bdb76b';
-        case 'mountain': return '#cccccc';
-        default: return '#7ec850';
-      }
-      
-    case 'explore':
-      // Modo Exploração: Desértico
-      switch (biome) {
-        case 'oasis': return '#3ec6ff';
-        case 'sand': return '#f4d03f';
-        case 'dunes': return '#f39c12';
-        case 'rocky': return '#95a5a6';
-        case 'mountain': return '#7f8c8d';
-        default: return '#f4d03f';
-      }
-      
-    case 'dungeon':
-      // Modo Masmorra: Terreno escuro
-      switch (biome) {
-        case 'void': return '#2c3e50';
-        case 'dark_ground': return '#34495e';
-        case 'dark_forest': return '#1a252f';
-        case 'dark_hills': return '#2c3e50';
-        case 'dark_mountain': return '#1a252f';
-        default: return '#34495e';
-      }
-      
-    default:
-      // Padrão: Grama e Floresta
-      switch (biome) {
-        case 'water': return '#3ec6ff';
-        case 'grass': return '#7ec850';
-        case 'forest': return '#228B22';
-        case 'hills': return '#bdb76b';
-        case 'mountain': return '#cccccc';
-        default: return '#7ec850';
-      }
+// Função de altura com múltiplos octaves (como no vídeo)
+function getHeight(x: number, y: number, params = useTerrainParams('hunt')): number {
+  let amplitude = 1;
+  let frequency = 1;
+  let noiseHeight = 0;
+  for (let i = 0; i < params.octaves; i++) {
+    const sampleX = x * params.scale * frequency;
+    const sampleY = y * params.scale * frequency;
+    const perlinValue = noise(sampleX, sampleY) * 2 - 1;
+    noiseHeight += perlinValue * amplitude;
+    amplitude *= params.persistence;
+    frequency *= params.lacunarity;
   }
+  return noiseHeight * (params.heightMult ?? 3);
+}
+
+// Função de umidade com base na posição e no modo de jogo
+function getMoisture(x: number, y: number, gameMode: string): number {
+  const { scale } = TERRAIN_PRESETS[gameMode] || TERRAIN_PRESETS['hunt'];
+  return noise(x * scale + 100, y * scale - 100);
 }
 
 // Componente do terreno com elementos que se movem
@@ -155,11 +124,11 @@ const Terrain: React.FC<{
       for (let i = 0; i < geometry.attributes.position.count; i++) {
         const x = geometry.attributes.position.getX(i) + offset.x;
         const y = geometry.attributes.position.getY(i) + offset.y;
-        const h = getHeight(x, y);
-        const m = getMoisture(x, y);
+        const h = getHeight(x, y, gameMode);
+        const m = getMoisture(x, y, gameMode);
         geometry.attributes.position.setZ(i, h);
         // Coloração por bioma baseada no modo de jogo
-        const color = new THREE.Color(getTerrainColor(h, m, gameMode));
+        const color = new THREE.Color(TERRAIN_PRESETS[gameMode]?.biomas(h, m) || '#ffffff');
         colors.push(color.r, color.g, color.b);
       }
       if (!geometry.attributes.color || geometry.attributes.color.count !== geometry.attributes.position.count) {
@@ -185,7 +154,7 @@ const Terrain: React.FC<{
 
 const Player: React.FC = () => {
   // O player está sempre no centro, então calcula a altura do terreno em (0,0)
-  const y = getHeight(0, 0) + 0.5;
+  const y = getHeight(0, 0, 'hunt') + 0.5;
   return (
     <mesh position={[0, y, 0]} castShadow>
       <sphereGeometry args={[0.4, 32, 32]} />
@@ -263,6 +232,12 @@ const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode
       }, 2000);
     }
   }, [inBattle]);
+
+  // Inicializa o noise e parâmetros do terreno ao mudar o modo de jogo
+  useEffect(() => {
+    initNoise(gameMode);
+    setOffset({ x: 0, y: 0 }); // Reseta o offset ao mudar de modo
+  }, [gameMode]);
 
   return (
     <div style={{ width: "100%", height: 500, borderRadius: 12, overflow: "hidden", background: '#222' }}>
