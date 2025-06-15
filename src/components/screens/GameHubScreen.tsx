@@ -21,10 +21,10 @@ import CombatAreaCaca from '../combat/CombatAreaCaca';
 import CombatAreaTorneio from '../combat/CombatAreaTorneio';
 import CombatAreaMasmorra from '../combat/CombatAreaMasmorra';
 import CombatAreaExplorar from '../combat/CombatAreaExplorar';
-import CombatAreaMissoes from '../combat/CombatAreaMissoes';
-import CombatAreaMercado from '../combat/CombatAreaMercado';
-import CombatAreaAlianca from '../combat/CombatAreaAlianca';
-import CombatAreaRanking from '../combat/CombatAreaRanking';
+import AliancaFeature from '../features/AliancaFeature';
+import MercadoFeature from '../features/MercadoFeature';
+import MissoesFeature from '../features/MissoesFeature';
+import RankingFeature from '../features/RankingFeature';
 
 /**
  * Tela principal do jogo (Game Hub)
@@ -104,13 +104,13 @@ function GameHubScreen() {
       case 'EXPLORAR':
         return <CombatAreaExplorar />;
       case 'MISSÕES':
-        return <CombatAreaMissoes />;
+        return <MissoesFeature />;
       case 'MERCADO':
-        return <CombatAreaMercado />;
+        return <MercadoFeature />;
       case 'ALIANÇA':
-        return <CombatAreaAlianca />;
+        return <AliancaFeature />;
       case 'RANKING':
-        return <CombatAreaRanking />;
+        return <RankingFeature />;
       default:
         return null;
     }

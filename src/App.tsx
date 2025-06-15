@@ -5,8 +5,6 @@ import HeroSection from './components/HeroSection';
 import NewsSection from './components/NewsSection';
 import FeaturesSection from './components/FeaturesSection';
 import Footer from './components/Footer';
-import Cadastro from './pages/Cadastro';
-import Verificacao from './pages/Verificacao';
 import CriarPersonagem from './pages/CriarPersonagem';
 import CharacterSelectionScreen from './components/screens/CharacterSelectionScreen';
 import GameHubScreen from './components/screens/GameHubScreen';
