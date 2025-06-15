@@ -12,8 +12,8 @@ const CombatAreaCaca: React.FC = () => {
           </span>
         </div>
         <div className="flex-1 w-full flex flex-col items-center justify-center">
-          {/* Terreno procedural com movimentação do personagem */}
-          <ProceduralTerrainWithPlayer />
+          {/* Terreno procedural com biomas de grama e floresta */}
+          <ProceduralTerrainWithPlayer gameMode="hunt" />
           {/* Log de batalha automático abaixo do terreno */}
           <HuntBattleLogAuto />
         </div>

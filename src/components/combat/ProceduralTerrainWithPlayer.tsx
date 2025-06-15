@@ -2,227 +2,192 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
+import SimplexNoise from "../../utils/simplex-noise";
 
-// 1. Estrutura dos elementos do mapa
-export type MapElementType = 'tree' | 'rock' | 'water' | 'enemy';
-export interface MapElement {
-  type: MapElementType;
-  x: number;
-  z: number;
-}
+// Instâncias de ruído para diferentes camadas (Red Blob Games technique)
+const noiseElevation = new SimplexNoise(12345);
+const noiseMoisture = new SimplexNoise(54321);
+const noiseDetail = new SimplexNoise(67890);
 
-// Função de altura com caminho suave e terreno mais plano
+// Função de altura seguindo Red Blob Games - múltiplas octaves
 function getHeight(x: number, y: number): number {
-  // Altura procedural suavizada e menos intensa
-  const roughHeight = Math.sin(x * 0.08) * Math.cos(y * 0.08) * 0.7;
-
-  // Caminho central suave (faixa vertical em x=0)
-  const pathCenter = 0;
-  const pathWidth = 8; // Largura do caminho
-  const distToPath = Math.abs(x - pathCenter);
-  const t = Math.max(0, 1 - distToPath / pathWidth); // 1 no centro, 0 fora
-  const smoothHeight = roughHeight * (1 - t) + 0 * t; // 0 = altura plana
-
-  return smoothHeight;
+  // Octaves de ruído (frequências diferentes)
+  const octave1 = noiseElevation.noise2D(x * 0.01, y * 0.01) * 1.0;    // Grandes montanhas
+  const octave2 = noiseElevation.noise2D(x * 0.02, y * 0.02) * 0.5;    // Colinas médias
+  const octave3 = noiseElevation.noise2D(x * 0.04, y * 0.04) * 0.25;   // Detalhes pequenos
+  
+  // Soma das octaves (Red Blob Games technique)
+  let elevation = octave1 + octave2 + octave3;
+  
+  // Normalização (divide pela soma das amplitudes)
+  elevation = elevation / (1.0 + 0.5 + 0.25);
+  
+  // Redistribuição para criar vales planos (Red Blob Games technique)
+  elevation = Math.pow(elevation, 2.5);
+  
+  // Escala para altura final
+  return elevation * 8 - 2; // Range: -2 a 6
 }
 
-function generateElements(count: number, size: number, pathWidth: number) {
-  const elements = [];
-  while (elements.length < count) {
-    const x = (Math.random() - 0.5) * size;
-    const z = (Math.random() - 0.5) * size;
-    // Só adiciona se estiver fora do caminho central
-    if (Math.abs(x) > pathWidth * 0.7) {
-      elements.push({ x, z });
-    }
-  }
-  return elements;
+// Função de umidade (moisture) para biomas
+function getMoisture(x: number, y: number): number {
+  // Usa frequência diferente para evitar correlação com elevação
+  const moisture = noiseMoisture.noise2D(x * 0.015, y * 0.015);
+  return (moisture + 1) / 2; // Normaliza para 0-1
 }
 
-// 2. Função procedural para gerar elementos próximos ao personagem
+// Função procedural para gerar elementos
 function pseudoRandom(x: number, z: number, seed = 42) {
   return Math.abs(Math.sin(x * 12.9898 + z * 78.233 + seed) * 43758.5453) % 1;
 }
 
-function generateProceduralElements(centerX: number, centerZ: number, radius: number, pathWidth: number): MapElement[] {
-  const elements: MapElement[] = [];
-  for (let x = Math.floor(centerX - radius); x < centerX + radius; x += 3) {
-    for (let z = Math.floor(centerZ - radius); z < centerZ + radius; z += 3) {
-      // Não gerar elementos no caminho central
-      if (Math.abs(x) < pathWidth * 0.7) continue;
-      const r = pseudoRandom(x, z);
-      if (r < 0.07) elements.push({ type: 'tree', x, z });
-      else if (r < 0.12) elements.push({ type: 'rock', x, z });
-      else if (r < 0.15) elements.push({ type: 'water', x, z });
-      else if (r > 0.98) elements.push({ type: 'enemy', x, z });
-    }
+// Sistema de biomas baseado em Red Blob Games
+function getBiome(elevation: number, moisture: number, gameMode: string = 'hunt'): string {
+  switch (gameMode) {
+    case 'hunt':
+      // Modo Caça: Grama e Floresta
+      if (elevation < -1.0) return 'water';
+      if (elevation < 0.0) return 'grass';
+      if (elevation < 1.0 && moisture > 0.6) return 'forest';
+      if (elevation < 1.0) return 'grass';
+      if (elevation < 2.5) return 'hills';
+      return 'mountain';
+      
+    case 'explore':
+      // Modo Exploração: Desértico
+      if (elevation < -1.0) return 'oasis';
+      if (elevation < 0.0) return 'sand';
+      if (elevation < 1.0) return 'dunes';
+      if (elevation < 2.5) return 'rocky';
+      return 'mountain';
+      
+    case 'dungeon':
+      // Modo Masmorra: Terreno escuro
+      if (elevation < -1.0) return 'void';
+      if (elevation < 0.0) return 'dark_ground';
+      if (elevation < 1.0) return 'dark_forest';
+      if (elevation < 2.5) return 'dark_hills';
+      return 'dark_mountain';
+      
+    default:
+      // Padrão: Grama e Floresta
+      if (elevation < -1.0) return 'water';
+      if (elevation < 0.0) return 'grass';
+      if (elevation < 1.0 && moisture > 0.6) return 'forest';
+      if (elevation < 1.0) return 'grass';
+      if (elevation < 2.5) return 'hills';
+      return 'mountain';
   }
-  return elements;
 }
 
-// 3. Componentes para renderização dos elementos
-function Tree({ x, y, z }: { x: number; y: number; z: number }) {
-  return (
-    <group position={[x, y, z]}>
-      <mesh position={[0, 0.5, 0]} castShadow>
-        <cylinderGeometry args={[0.15, 0.15, 1, 8]} />
-        <meshStandardMaterial color="#8B5A2B" />
-      </mesh>
-      <mesh position={[0, 1.1, 0]} castShadow>
-        <coneGeometry args={[0.5, 1, 8]} />
-        <meshStandardMaterial color="#228B22" />
-      </mesh>
-    </group>
-  );
+// Cores dos biomas por modo de jogo
+function getTerrainColor(elevation: number, moisture: number, gameMode: string = 'hunt'): string {
+  const biome = getBiome(elevation, moisture, gameMode);
+  
+  switch (gameMode) {
+    case 'hunt':
+      // Modo Caça: Grama e Floresta
+      switch (biome) {
+        case 'water': return '#3ec6ff';
+        case 'grass': return '#7ec850';
+        case 'forest': return '#228B22';
+        case 'hills': return '#bdb76b';
+        case 'mountain': return '#cccccc';
+        default: return '#7ec850';
+      }
+      
+    case 'explore':
+      // Modo Exploração: Desértico
+      switch (biome) {
+        case 'oasis': return '#3ec6ff';
+        case 'sand': return '#f4d03f';
+        case 'dunes': return '#f39c12';
+        case 'rocky': return '#95a5a6';
+        case 'mountain': return '#7f8c8d';
+        default: return '#f4d03f';
+      }
+      
+    case 'dungeon':
+      // Modo Masmorra: Terreno escuro
+      switch (biome) {
+        case 'void': return '#2c3e50';
+        case 'dark_ground': return '#34495e';
+        case 'dark_forest': return '#1a252f';
+        case 'dark_hills': return '#2c3e50';
+        case 'dark_mountain': return '#1a252f';
+        default: return '#34495e';
+      }
+      
+    default:
+      // Padrão: Grama e Floresta
+      switch (biome) {
+        case 'water': return '#3ec6ff';
+        case 'grass': return '#7ec850';
+        case 'forest': return '#228B22';
+        case 'hills': return '#bdb76b';
+        case 'mountain': return '#cccccc';
+        default: return '#7ec850';
+      }
+  }
 }
 
-function Rock({ x, y, z }: { x: number; y: number; z: number }) {
-  return (
-    <mesh position={[x, y, z]} castShadow>
-      <sphereGeometry args={[0.5, 8, 8]} />
-      <meshStandardMaterial color="#888888" />
-    </mesh>
-  );
-}
-
-function Water({ x, y, z }: { x: number; y: number; z: number }) {
-  return (
-    <mesh position={[x, y + 0.05, z]} receiveShadow>
-      <cylinderGeometry args={[0.7, 0.7, 0.1, 16]} />
-      <meshStandardMaterial color="#3ec6ff" transparent opacity={0.7} />
-    </mesh>
-  );
-}
-
-function Enemy({ x, y, z }: { x: number; y: number; z: number }) {
-  return (
-    <mesh position={[x, y + 0.5, z]} castShadow>
-      <boxGeometry args={[0.5, 1, 0.5]} />
-      <meshStandardMaterial color="#ff3333" />
-    </mesh>
-  );
-}
-
-// Componente para elementos do terreno
-function TerrainElements({ getHeight, size, pathWidth }: { getHeight: (x: number, z: number) => number, size: number, pathWidth: number }) {
-  const rocks = useMemo(() => generateElements(18, size, pathWidth), [size, pathWidth]);
-  const trees = useMemo(() => generateElements(14, size, pathWidth), [size, pathWidth]);
-
-  return (
-    <>
-      {/* Rochas */}
-      {rocks.map((pos, i) => (
-        <mesh key={`rock-${i}`} position={[pos.x, getHeight(pos.x, pos.z), pos.z]} castShadow>
-          <sphereGeometry args={[0.7, 8, 8]} />
-          <meshStandardMaterial color="#888888" />
-        </mesh>
-      ))}
-      {/* Árvores */}
-      {trees.map((pos, i) => (
-        <group key={`tree-${i}`} position={[pos.x, getHeight(pos.x, pos.z), pos.z]}>
-          {/* Tronco */}
-          <mesh position={[0, 0.5, 0]} castShadow>
-            <cylinderGeometry args={[0.15, 0.15, 1, 8]} />
-            <meshStandardMaterial color="#8B5A2B" />
-          </mesh>
-          {/* Copa */}
-          <mesh position={[0, 1.1, 0]} castShadow>
-            <coneGeometry args={[0.5, 1, 8]} />
-            <meshStandardMaterial color="#228B22" />
-          </mesh>
-        </group>
-      ))}
-    </>
-  );
-}
-
-const Terrain: React.FC<{ offset: { x: number; y: number }; elements: MapElement[] }> = ({ offset, elements }) => {
+// Componente do terreno com elementos que se movem
+const Terrain: React.FC<{ 
+  offset: { x: number; y: number }; 
+  viewRadius: number; 
+  spawnRadius: number; 
+  gameMode: string;
+}> = ({ offset, viewRadius, spawnRadius, gameMode }) => {
   const mesh = useRef<THREE.Mesh>(null);
-  const size = 256;
-  const planeSize = 256;
-  const pathWidth = 8;
+  const size = 64;
+  const planeSize = 32;
 
-  // Elementos próximos ao personagem
-  const elementsProc = useMemo(() =>
-    generateProceduralElements(offset.x, offset.y, 32, pathWidth),
-    [offset.x, offset.y, pathWidth]
-  );
-
-  // Textura de ladrilhos para o caminho central
-  const tileTexture = useMemo(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = '#bcbcbc';
-    ctx.fillRect(0, 0, 64, 64);
-    ctx.strokeStyle = '#888';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(0, 0, 64, 64);
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(32, 0); ctx.lineTo(32, 64);
-    ctx.moveTo(0, 32); ctx.lineTo(64, 32);
-    ctx.stroke();
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(pathWidth / 2, planeSize / 8);
-    return texture;
+  // Cria a geometria do terreno
+  const geometry = React.useMemo(() => {
+    return new THREE.PlaneGeometry(planeSize, planeSize, size, size);
   }, []);
 
+  // Atualiza a geometria do terreno para seguir o offset e colore por bioma
   useFrame(() => {
     if (mesh.current) {
       const geometry = mesh.current.geometry as THREE.PlaneGeometry;
+      const colors = [];
       for (let i = 0; i < geometry.attributes.position.count; i++) {
         const x = geometry.attributes.position.getX(i) + offset.x;
         const y = geometry.attributes.position.getY(i) + offset.y;
-        geometry.attributes.position.setZ(i, getHeight(x, y));
+        const h = getHeight(x, y);
+        const m = getMoisture(x, y);
+        geometry.attributes.position.setZ(i, h);
+        // Coloração por bioma baseada no modo de jogo
+        const color = new THREE.Color(getTerrainColor(h, m, gameMode));
+        colors.push(color.r, color.g, color.b);
+      }
+      if (!geometry.attributes.color || geometry.attributes.color.count !== geometry.attributes.position.count) {
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      } else {
+        geometry.attributes.color.array.set(colors);
+        geometry.attributes.color.needsUpdate = true;
       }
       geometry.computeVertexNormals();
       geometry.attributes.position.needsUpdate = true;
     }
   });
 
-  // Cria a geometria apenas uma vez
-  const geometry = React.useMemo(() => {
-    return new THREE.PlaneGeometry(planeSize, planeSize, size, size);
-  }, []);
-
-  // Caminho central como mesh plano acima do terreno
-  const pathGeometry = useMemo(() => {
-    return new THREE.PlaneGeometry(pathWidth, planeSize, 2, size);
-  }, []);
-
   return (
     <group>
-      {/* Terreno base verde */}
+      {/* Terreno base colorido por bioma */}
       <mesh ref={mesh} geometry={geometry} rotation-x={-Math.PI / 2} receiveShadow position={[0, 0, 0]}>
-        <meshStandardMaterial color="#2ecc40" />
-        {/* Renderização dos elementos procedurais */}
-        {elementsProc.map((el, i) => {
-          const y = getHeight(el.x - offset.x, el.z - offset.y);
-          if (el.type === 'tree') return <Tree key={i} x={el.x} y={y} z={el.z} />;
-          if (el.type === 'rock') return <Rock key={i} x={el.x} y={y} z={el.z} />;
-          if (el.type === 'water') return <Water key={i} x={el.x} y={y} z={el.z} />;
-          if (el.type === 'enemy') return <Enemy key={i} x={el.x} y={y} z={el.z} />;
-          return null;
-        })}
-      </mesh>
-      {/* Caminho central com textura de ladrilhos */}
-      <mesh geometry={pathGeometry} rotation-x={-Math.PI / 2} position={[0, 0.01, 0]}>
-        <meshStandardMaterial map={tileTexture} transparent={false} />
+        <meshStandardMaterial vertexColors />
       </mesh>
     </group>
   );
 };
 
-const Player: React.FC<{ offset?: { x: number; y: number } }> = ({ offset }) => {
-  // Garante valores padrão seguros
-  const x = (offset && typeof offset.x === 'number') ? offset.x : 0;
-  const y = (offset && typeof offset.y === 'number') ? offset.y : 0;
-  const altura = getHeight(x, y) + 0.5;
+const Player: React.FC = () => {
+  // O player está sempre no centro, então calcula a altura do terreno em (0,0)
+  const y = getHeight(0, 0) + 0.5;
   return (
-    <mesh position={[0, altura, 0]} castShadow>
+    <mesh position={[0, y, 0]} castShadow>
       <sphereGeometry args={[0.4, 32, 32]} />
       <meshStandardMaterial color="#00bfff" />
     </mesh>
@@ -230,50 +195,50 @@ const Player: React.FC<{ offset?: { x: number; y: number } }> = ({ offset }) => 
 };
 
 // Componente principal que renderiza o Canvas
-const ProceduralTerrainWithPlayer: React.FC = () => {
+const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode = 'hunt' }) => {
   const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(true);
   const [inBattle, setInBattle] = useState(false);
-  const [defeatedEnemies, setDefeatedEnemies] = useState<Set<string>>(new Set());
-  const speed = 0.08;
+  const [fps, setFps] = useState(0);
+  const speed = 0.1; // Velocidade aumentada de 0.008 para 0.1
 
-  // Parâmetros do cenário
-  const pathWidth = 8;
-  const viewRadius = 32;
+  // Parâmetros do sistema de elementos
+  const planeSize = 32;
+  const viewRadius = planeSize / 1.5; // Raio de visualização
+  const spawnRadius = viewRadius + 8; // Raio de spawn (fora da visualização)
 
-  // Elementos próximos ao personagem (mantêm posição lateral ao caminho)
-  const elements = useMemo(() => {
-    const arr: MapElement[] = [];
-    for (let dx = -viewRadius; dx < viewRadius; dx += 3) {
-      for (let dz = 0; dz < viewRadius; dz += 3) {
-        // Lateral ao caminho
-        const lateral = (Math.random() > 0.5 ? 1 : -1) * (pathWidth / 2 + 2 + Math.floor(Math.random() * 10));
-        const x = lateral;
-        const z = offset.y + dz;
-        const r = pseudoRandom(x, z);
-        if (Math.abs(x) < pathWidth * 0.7) continue;
-        if (r < 0.07) arr.push({ type: 'tree', x, z });
-        else if (r < 0.12) arr.push({ type: 'rock', x, z });
-        else if (r < 0.15) arr.push({ type: 'water', x, z });
-        else if (r > 0.98) arr.push({ type: 'enemy', x, z });
-      }
+  // Calcula a velocidade de deslocamento
+  const velocityPerFrame = speed; // unidades por frame
+  const velocityPerSecond = speed * 60; // unidades por segundo (assumindo 60 FPS)
+  const velocityPerMinute = velocityPerSecond * 60; // unidades por minuto
+
+  // Nome do modo para exibir
+  const getModeName = (mode: string) => {
+    switch (mode) {
+      case 'hunt': return 'Caça';
+      case 'explore': return 'Exploração';
+      case 'dungeon': return 'Masmorra';
+      default: return 'Caça';
     }
-    return arr;
-  }, [offset.y]);
-
-  // Remove elementos fora da área de visualização (exceto inimigos ativos)
-  const visibleElements = elements.filter(el => {
-    if (el.type === 'enemy') {
-      // Identificador único para cada inimigo
-      const id = `${el.x.toFixed(2)}_${el.z.toFixed(2)}`;
-      return !defeatedEnemies.has(id) && el.z > offset.y - 2 && el.z < offset.y + viewRadius;
-    }
-    return el.z > offset.y - 2 && el.z < offset.y + viewRadius;
-  });
+  };
 
   // Controla o offset dentro do Canvas
   const OffsetController = () => {
+    const frameCountRef = useRef(0);
+    const lastTimeRef = useRef(performance.now());
+    
     useFrame(() => {
+      frameCountRef.current++;
+      const currentTime = performance.now();
+      
+      // Calcula FPS a cada segundo
+      if (currentTime - lastTimeRef.current >= 1000) {
+        const calculatedFps = Math.round(frameCountRef.current * 1000 / (currentTime - lastTimeRef.current));
+        setFps(calculatedFps);
+        frameCountRef.current = 0;
+        lastTimeRef.current = currentTime;
+      }
+      
       if (isMoving) {
         setOffset((prev) => ({ x: prev.x, y: prev.y + speed }));
       }
@@ -284,26 +249,25 @@ const ProceduralTerrainWithPlayer: React.FC = () => {
   // Detecta proximidade com inimigo e pausa movimento
   useEffect(() => {
     if (inBattle) return;
-    const enemy = visibleElements.find(
-      (el) => el.type === 'enemy' && Math.abs(el.x - offset.x) < 1.2 && Math.abs(el.z - offset.y) < 1.2
-    );
-    if (enemy) {
+    
+    // Verifica se há inimigos próximos (posição relativa ao offset)
+    const enemyNearby = Math.random() < 0.01; // 1% de chance por frame
+    
+    if (enemyNearby) {
       setIsMoving(false);
       setInBattle(true);
-      // Marca inimigo como derrotado após "batalha"
-      const id = `${enemy.x.toFixed(2)}_${enemy.z.toFixed(2)}`;
+      
       setTimeout(() => {
-        setDefeatedEnemies(prev => new Set(prev).add(id));
         setInBattle(false);
         setIsMoving(true);
       }, 2000);
     }
-  }, [visibleElements, offset, inBattle]);
+  }, [inBattle]);
 
   return (
     <div style={{ width: "100%", height: 500, borderRadius: 12, overflow: "hidden", background: '#222' }}>
       <Canvas 
-        camera={{ position: [0, 12, 12], fov: 50 }} 
+        camera={{ position: [0, 20, 20], fov: 45 }} 
         shadows
         gl={{ antialias: true }}
         style={{ background: '#222' }}
@@ -312,8 +276,29 @@ const ProceduralTerrainWithPlayer: React.FC = () => {
         <ambientLight intensity={1.2} />
         <directionalLight position={[5, 10, 7]} intensity={2} castShadow />
         <OffsetController />
-        <Terrain offset={offset} elements={visibleElements} />
-        <Player offset={offset} />
+        <Terrain offset={offset} viewRadius={viewRadius} spawnRadius={spawnRadius} gameMode={gameMode} />
+        <Player />
+        
+        {/* Contador de FPS e velocidade */}
+        <Html position={[4, 4, 0]} style={{ 
+          background: 'rgba(0,0,0,0.8)', 
+          color: 'white', 
+          padding: '8px 12px', 
+          borderRadius: 5,
+          fontSize: '12px',
+          fontFamily: 'monospace',
+          pointerEvents: 'none',
+          minWidth: '180px',
+          whiteSpace: 'nowrap'
+        }}>
+          <div>FPS: {fps}</div>
+          <div>Vel/frame: {velocityPerFrame.toFixed(4)}</div>
+          <div>Vel/seg: {velocityPerSecond.toFixed(3)}</div>
+          <div>View: {viewRadius.toFixed(1)}u</div>
+          <div>Spawn: {spawnRadius.toFixed(1)}u</div>
+          <div>Modo: {getModeName(gameMode)}</div>
+        </Html>
+        
         {inBattle && (
           <Html center style={{ pointerEvents: 'none', color: 'white', fontSize: 32 }}>
             Batalha!
