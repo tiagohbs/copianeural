@@ -3,73 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import noise, { setNoiseSeed, setNoiseDetail } from "../../utils/perlin";
-
-// Parâmetros de terreno por modo
-const TERRAIN_PRESETS: Record<string, {
-  seed: number;
-  scale: number;
-  octaves: number;
-  persistence: number;
-  lacunarity: number;
-  biomas: (h: number, m: number) => string;
-  heightMult?: number;
-}> = {
-  hunt: {
-    seed: 12345,
-    scale: 0.045, // escala menor = mais suave
-    octaves: 4,
-    persistence: 0.7, // mais persistência = menos contraste
-    lacunarity: 2.0,
-    heightMult: 1.5, // altura máxima reduzida
-    biomas: (h, m) => {
-      if (h < -1.5) return '#3ec6ff'; // água
-      if (h < -0.5) return '#e3d7a3'; // areia
-      if (h < 1.5 && m > 0.6) return '#228B22'; // floresta
-      if (h < 1.5) return '#7ec850'; // grama
-      if (h < 3) return '#bdb76b'; // colina
-      return '#cccccc'; // montanha
-    }
-  },
-  dungeon: {
-    seed: 54321,
-    scale: 0.12,
-    octaves: 4,
-    persistence: 0.6,
-    lacunarity: 2.5,
-    biomas: (h, m) => {
-      if (h < -1.2) return '#22223b'; // abismo
-      if (h < 0.5) return '#444466'; // pedra
-      if (h < 2) return '#6c757d'; // rocha
-      return '#bdbdbd'; // caverna clara
-    }
-  },
-  explore: {
-    seed: 67890,
-    scale: 0.06,
-    octaves: 6,
-    persistence: 0.45,
-    lacunarity: 2.1,
-    biomas: (h, m) => {
-      if (h < -1.2) return '#b3e6ff'; // lago
-      if (h < 0.2) return '#e3e3a3'; // campo aberto
-      if (h < 1.5 && m > 0.5) return '#4caf50'; // floresta densa
-      if (h < 2.5) return '#c2b280'; // colina seca
-      return '#f5f5f5'; // pico
-    }
-  },
-  tournament: {
-    seed: 24680,
-    scale: 0.09,
-    octaves: 3,
-    persistence: 0.7,
-    lacunarity: 1.8,
-    biomas: (h, m) => {
-      if (h < -0.8) return '#d4af37'; // arena dourada
-      if (h < 1.2) return '#e5c07b'; // areia
-      return '#c678dd'; // platô roxo
-    }
-  }
-};
+import { TERRAIN_PRESETS, TerrainPreset } from '../../utils/terrain-presets';
 
 // Inicializa o Perlin Noise com base no modo de jogo
 function initNoise(gameMode: string) {
@@ -162,6 +96,11 @@ const Player: React.FC = () => {
     </mesh>
   );
 };
+
+// Funções de geração dependentes do modo
+function useTerrainParams(gameMode: string): TerrainPreset {
+  return TERRAIN_PRESETS[gameMode] || TERRAIN_PRESETS['hunt'];
+}
 
 // Componente principal que renderiza o Canvas
 const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode = 'hunt' }) => {
