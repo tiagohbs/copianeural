@@ -17,6 +17,14 @@ import {
   Target,
   Search
 } from 'lucide-react';
+import CombatAreaCaca from '../combat/CombatAreaCaca';
+import CombatAreaTorneio from '../combat/CombatAreaTorneio';
+import CombatAreaMasmorra from '../combat/CombatAreaMasmorra';
+import CombatAreaExplorar from '../combat/CombatAreaExplorar';
+import CombatAreaMissoes from '../combat/CombatAreaMissoes';
+import CombatAreaMercado from '../combat/CombatAreaMercado';
+import CombatAreaAlianca from '../combat/CombatAreaAlianca';
+import CombatAreaRanking from '../combat/CombatAreaRanking';
 
 /**
  * Tela principal do jogo (Game Hub)
@@ -84,15 +92,28 @@ function GameHubScreen() {
 
   // Renderização condicional da área de combate
   function renderCombatArea() {
-    return (
-      <div className="flex justify-center items-center w-full min-h-[500px]">
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-8 w-full max-w-6xl flex flex-col items-center" style={{ minHeight: '500px' }}>
-          <div className="w-full text-center pt-6 pb-8">
-            <span className="text-lg text-slate-300 tracking-widest uppercase font-semibold">ÁREA DE COMBATE DO PERSONAGEM</span>
-          </div>
-        </div>
-      </div>
-    );
+    switch (selectedMode) {
+      case 'CAÇA':
+        return <CombatAreaCaca />;
+      case 'TORNEIO':
+      case 'GRUPO':
+      case 'SOLO':
+        return <CombatAreaTorneio />;
+      case 'MASMORRA':
+        return <CombatAreaMasmorra />;
+      case 'EXPLORAR':
+        return <CombatAreaExplorar />;
+      case 'MISSÕES':
+        return <CombatAreaMissoes />;
+      case 'MERCADO':
+        return <CombatAreaMercado />;
+      case 'ALIANÇA':
+        return <CombatAreaAlianca />;
+      case 'RANKING':
+        return <CombatAreaRanking />;
+      default:
+        return null;
+    }
   }
 
   return (
