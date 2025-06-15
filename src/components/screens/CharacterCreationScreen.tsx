@@ -62,7 +62,7 @@ function CharacterCreationScreen() {
     };
 
     dispatch({ type: 'ADD_CHARACTER', payload: newCharacter });
-    dispatch({ type: 'SET_SCREEN', payload: 'character-selection' });
+    navigate('/selecao-personagem');
   };
 
   const attributeInfo = [
@@ -97,18 +97,18 @@ function CharacterCreationScreen() {
   ];
 
   return (
-    <div className="min-h-screen p-4 flex items-center justify-center">
-      <div className="cosmic-panel w-full max-w-2xl p-8">
+    <div className="min-h-screen p-4 flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 rounded-lg shadow-2xl w-full max-w-2xl p-8 relative z-10">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => navigate('/selecao-personagem')}
-            className="flex items-center text-gray-400 hover:text-alien-glow transition-colors"
+            className="flex items-center text-gray-400 hover:text-emerald-400 transition-colors z-20 relative"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Voltar
           </button>
-          <h2 className="text-3xl font-medieval font-bold text-alien-crystal">
+          <h2 className="text-3xl font-bold text-emerald-400">
             Criação Neural
           </h2>
           <div className="w-20" /> {/* Spacer */}
@@ -123,7 +123,7 @@ function CharacterCreationScreen() {
             type="text"
             value={characterName}
             onChange={(e) => setCharacterName(e.target.value)}
-            className="input-cosmic w-full"
+            className="bg-slate-900/50 border border-slate-600/50 rounded-lg px-4 py-2 w-full focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 placeholder-slate-500 text-white relative z-10"
             placeholder="Digite o nome do seu personagem"
             maxLength={20}
             autoFocus
@@ -132,10 +132,10 @@ function CharacterCreationScreen() {
 
         {/* Pontos restantes */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center space-x-2 bg-black/30 px-4 py-2 rounded-lg border border-alien-crystal/30">
-            <Star className="w-5 h-5 text-cosmic-gold" />
-            <span className="text-lg font-semibold">
-              Pontos Restantes: <span className="text-cosmic-gold">{remainingPoints}</span>
+          <div className="inline-flex items-center space-x-2 bg-black/30 px-4 py-2 rounded-lg border border-emerald-500/30">
+            <Star className="w-5 h-5 text-yellow-400" />
+            <span className="text-lg font-semibold text-white">
+              Pontos Restantes: <span className="text-yellow-400">{remainingPoints}</span>
             </span>
           </div>
         </div>
@@ -147,7 +147,7 @@ function CharacterCreationScreen() {
             const currentValue = attributes[attr.key];
             
             return (
-              <div key={attr.key} className="bg-black/20 p-4 rounded-lg border border-alien-crystal/20">
+              <div key={attr.key} className="bg-black/20 p-4 rounded-lg border border-emerald-500/20 relative z-10">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-3">
                     <IconComponent className={`w-6 h-6 ${attr.color}`} />
@@ -160,15 +160,15 @@ function CharacterCreationScreen() {
                     <button
                       onClick={() => handleAttributeChange(attr.key, -1)}
                       disabled={currentValue <= 1}
-                      className="w-8 h-8 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                      className="w-8 h-8 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center relative z-20"
                     >
                       -
                     </button>
-                    <span className="w-8 text-center font-bold text-lg">{currentValue}</span>
+                    <span className="w-8 text-center font-bold text-lg text-white">{currentValue}</span>
                     <button
                       onClick={() => handleAttributeChange(attr.key, 1)}
                       disabled={currentValue >= 10 || remainingPoints <= 0}
-                      className="w-8 h-8 rounded-full bg-green-600/20 border border-green-500/30 text-green-400 hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                      className="w-8 h-8 rounded-full bg-green-600/20 border border-green-500/30 text-green-400 hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center relative z-20"
                     >
                       +
                     </button>
@@ -196,7 +196,7 @@ function CharacterCreationScreen() {
         <button
           onClick={handleCreateCharacter}
           disabled={!characterName.trim() || remainingPoints > 0}
-          className="btn-cosmic w-full text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          className="px-6 py-3 rounded-lg font-semibold bg-gradient-to-r from-emerald-600/80 to-teal-600/80 hover:from-emerald-500/80 hover:to-teal-500/80 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-emerald-500/30 border border-emerald-500/30 w-full text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 relative z-20"
         >
           <Check className="w-5 h-5" />
           <span>Criar Personagem</span>
