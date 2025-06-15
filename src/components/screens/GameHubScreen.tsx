@@ -86,9 +86,11 @@ function GameHubScreen() {
   function renderCombatArea() {
     return (
       <div className="flex justify-center items-center w-full min-h-[400px]">
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-8 w-full max-w-xl flex flex-col items-center">
-          <h2 className="text-2xl font-bold text-slate-300 mb-4 uppercase">Área de combate</h2>
-          {/* Placeholder para futura área de jogo */}
+        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-0 w-full max-w-4xl flex flex-col items-center" style={{ minHeight: '350px' }}>
+          <div className="w-full text-center pt-6 pb-2">
+            <span className="text-xs text-slate-300 tracking-widest uppercase">ÁREA DE COMBATE DO PERSONAGEM</span>
+          </div>
+          {/* Placeholder para futura área de combate */}
         </div>
       </div>
     );
