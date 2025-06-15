@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
@@ -44,8 +44,13 @@ const Terrain: React.FC<{
   const size = 64;
   const planeSize = 32;
 
+  // Verificação de segurança para evitar erro quando offset é undefined
+  if (!offset) {
+    return null;
+  }
+
   // Cria a geometria do terreno
-  const geometry = React.useMemo(() => {
+  const geometry = useMemo(() => {
     return new THREE.PlaneGeometry(planeSize, planeSize, size, size);
   }, []);
 
@@ -55,7 +60,8 @@ const Terrain: React.FC<{
       const geometry = mesh.current.geometry as THREE.PlaneGeometry;
       const colors = [];
       for (let i = 0; i < geometry.attributes.position.count; i++) {
-        const x = geometry.attributes.position.getX(i) + offset.x;
+        // Aplicar offset apenas no eixo Y para movimento suave
+        const x = geometry.attributes.position.getX(i);
         const y = geometry.attributes.position.getY(i) + offset.y;
         const h = getHeight(x, y, gameMode);
         const m = getMoisture(x, y, gameMode);
@@ -85,9 +91,14 @@ const Terrain: React.FC<{
   );
 };
 
-const Player: React.FC<{ gameMode: string }> = ({ gameMode }) => {
-  // O player está sempre no centro, então calcula a altura do terreno em (0,0)
-  const y = getHeight(0, 0, gameMode) + 0.5;
+const Player: React.FC<{ gameMode: string; offset: { x: number; y: number } }> = ({ gameMode, offset }) => {
+  // Verificação de segurança para evitar erro quando offset é undefined
+  if (!offset) {
+    return null;
+  }
+  
+  // O player está sempre no centro, então calcula a altura do terreno em (0,0) com offset
+  const y = getHeight(0, offset.y, gameMode) + 0.5;
   return (
     <mesh position={[0, y, 0]} castShadow>
       <sphereGeometry args={[0.4, 32, 32]} />
@@ -98,6 +109,7 @@ const Player: React.FC<{ gameMode: string }> = ({ gameMode }) => {
 
 // Componente principal que renderiza o Canvas
 const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode = 'hunt' }) => {
+  // Inicializa o offset com valores padrão para evitar undefined
   const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(true);
   const [inBattle, setInBattle] = useState(false);
@@ -171,6 +183,9 @@ const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode
     setOffset({ x: 0, y: 0 }); // Reseta o offset ao mudar de modo
   }, [gameMode]);
 
+  // Garante que offset sempre tenha um valor válido
+  const safeOffset = offset || { x: 0, y: 0 };
+
   return (
     <div style={{ width: "100%", height: 500, borderRadius: 12, overflow: "hidden", background: '#222' }}>
       <Canvas 
@@ -183,8 +198,8 @@ const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode
         <ambientLight intensity={1.2} />
         <directionalLight position={[5, 10, 7]} intensity={2} castShadow />
         <OffsetController />
-        <Terrain offset={offset} gameMode={gameMode} />
-        <Player gameMode={gameMode} />
+        <Terrain offset={safeOffset} gameMode={gameMode} />
+        <Player gameMode={gameMode} offset={safeOffset} />
         
         {/* Contador de FPS e velocidade */}
         <Html position={[4, 4, 0]} style={{ 
