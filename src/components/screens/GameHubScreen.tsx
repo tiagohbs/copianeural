@@ -132,8 +132,42 @@ function GameHubScreen() {
         </div>
       </div>
 
+      {/* Botões secundários abaixo do header */}
+      <div className="bg-slate-800/50 border-b border-slate-700/30 p-3">
+        <div className="max-w-7xl mx-auto flex justify-center gap-4">
+          <button 
+            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MISSÕES' ? 'bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
+            onClick={() => handleSelectMode('MISSÕES')}
+          >
+            <Map className="w-4 h-4" />
+            <span>MISSÕES</span>
+          </button>
+          <button 
+            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MERCADO' ? 'bg-gradient-to-r from-amber-600/80 to-amber-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
+            onClick={() => handleSelectMode('MERCADO')}
+          >
+            <ShoppingCart className="w-4 h-4" />
+            <span>MERCADO</span>
+          </button>
+          <button 
+            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='ALIANÇA' ? 'bg-gradient-to-r from-cyan-600/80 to-cyan-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
+            onClick={() => handleSelectMode('ALIANÇA')}
+          >
+            <Users className="w-4 h-4" />
+            <span>ALIANÇA</span>
+          </button>
+          <button 
+            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='RANKING' ? 'bg-gradient-to-r from-slate-600/80 to-slate-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
+            onClick={() => handleSelectMode('RANKING')}
+          >
+            <Trophy className="w-4 h-4" />
+            <span>RANKING</span>
+          </button>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto p-4">
-        <div className="flex flex-col h-[calc(100vh-120px)] justify-center">
+        <div className="flex flex-col h-[calc(100vh-200px)] justify-center">
           {/* Área Central */}
           <div className="flex-1 flex flex-col items-center justify-center">
             {renderCombatArea()}
@@ -179,39 +213,35 @@ function GameHubScreen() {
               </button>
             </div>
           </div>
-          {/* Botões abaixo da área de combate */}
+          {/* Botões principais de modo de jogo */}
           <div className="w-full flex flex-wrap justify-center gap-4 mt-8">
-            <button className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='CAÇA' ? 'bg-gradient-to-r from-green-600/80 to-green-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('CAÇA')}>
+            <button 
+              className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='CAÇA' ? 'bg-gradient-to-r from-green-600/80 to-green-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
+              onClick={() => handleSelectMode('CAÇA')}
+            >
               <Search className="w-5 h-5" />
               <span>CAÇA</span>
             </button>
-            <button className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='TORNEIO' ? 'bg-gradient-to-r from-red-600/80 to-red-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={handleOpenTorneio}>
+            <button 
+              className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='TORNEIO' ? 'bg-gradient-to-r from-red-600/80 to-red-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
+              onClick={handleOpenTorneio}
+            >
               <Sword className="w-5 h-5" />
               <span>TORNEIO</span>
             </button>
-            <button className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MASMORRA' ? 'bg-gradient-to-r from-purple-600/80 to-purple-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('MASMORRA')}>
+            <button 
+              className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MASMORRA' ? 'bg-gradient-to-r from-purple-600/80 to-purple-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
+              onClick={() => handleSelectMode('MASMORRA')}
+            >
               <Target className="w-5 h-5" />
               <span>MASMORRA</span>
             </button>
-            <button className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='EXPLORAR' ? 'bg-gradient-to-r from-blue-600/80 to-blue-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('EXPLORAR')}>
+            <button 
+              className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='EXPLORAR' ? 'bg-gradient-to-r from-blue-600/80 to-blue-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
+              onClick={() => handleSelectMode('EXPLORAR')}
+            >
               <Map className="w-5 h-5" />
               <span>EXPLORAR</span>
-            </button>
-            <button className={`p-3 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MISSÕES' ? 'bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('MISSÕES')}>
-              <Map className="w-4 h-4" />
-              <span>MISSÕES</span>
-            </button>
-            <button className={`p-3 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MERCADO' ? 'bg-gradient-to-r from-amber-600/80 to-amber-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('MERCADO')}>
-              <ShoppingCart className="w-4 h-4" />
-              <span>MERCADO</span>
-            </button>
-            <button className={`p-3 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='ALIANÇA' ? 'bg-gradient-to-r from-cyan-600/80 to-cyan-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('ALIANÇA')}>
-              <Users className="w-4 h-4" />
-              <span>ALIANÇA</span>
-            </button>
-            <button className={`p-3 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='RANKING' ? 'bg-gradient-to-r from-slate-600/80 to-slate-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('RANKING')}>
-              <Trophy className="w-4 h-4" />
-              <span>RANKING</span>
             </button>
           </div>
         </div>
