@@ -39,7 +39,7 @@ export function huntBiome(h: number, m: number): string {
   return biomeColors.montanha;
 }
 
-export function dungeonBiome(h: number, m: number): string {
+export function dungeonBiome(h: number, _m: number): string {
   if (h < -1.2) return biomeColors.abismo;
   if (h < 0.5) return biomeColors.pedra;
   if (h < 2) return biomeColors.rocha;
@@ -54,7 +54,7 @@ export function exploreBiome(h: number, m: number): string {
   return biomeColors.pico;
 }
 
-export function tournamentBiome(h: number, m: number): string {
+export function tournamentBiome(h: number, _m: number): string {
   if (h < -0.8) return biomeColors.arenaDourada;
   if (h < 1.2) return biomeColors.areiaTorneio;
   return biomeColors.platoRoxo;

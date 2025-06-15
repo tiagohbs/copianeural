@@ -4,7 +4,6 @@ import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';
 import CharacterCreationScreen from './screens/CharacterCreationScreen';
 import CharacterSelectionScreen from './screens/CharacterSelectionScreen';
-import GameHubScreen from './screens/GameHubScreen';
 
 /**
  * Roteador principal do jogo
@@ -30,7 +29,8 @@ function GameRouter() {
       case 'character-selection':
         return <CharacterSelectionScreen />;
       case 'game-hub':
-        return <GameHubScreen />;
+        // Redirecionar para seleção de personagem se não há GameHubScreen
+        return <CharacterSelectionScreen />;
       default:
         return <SplashScreen />;
     }

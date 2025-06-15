@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
@@ -13,7 +13,8 @@ function initNoise(gameMode: string) {
 }
 
 // Função de altura com múltiplos octaves (como no vídeo)
-function getHeight(x: number, y: number, params = useTerrainParams('hunt')): number {
+function getHeight(x: number, y: number, gameMode: string): number {
+  const params = TERRAIN_PRESETS[gameMode] || TERRAIN_PRESETS['hunt'];
   let amplitude = 1;
   let frequency = 1;
   let noiseHeight = 0;
@@ -37,10 +38,8 @@ function getMoisture(x: number, y: number, gameMode: string): number {
 // Componente do terreno com elementos que se movem
 const Terrain: React.FC<{ 
   offset: { x: number; y: number }; 
-  viewRadius: number; 
-  spawnRadius: number; 
   gameMode: string;
-}> = ({ offset, viewRadius, spawnRadius, gameMode }) => {
+}> = ({ offset, gameMode }) => {
   const mesh = useRef<THREE.Mesh>(null);
   const size = 64;
   const planeSize = 32;
@@ -62,7 +61,7 @@ const Terrain: React.FC<{
         const m = getMoisture(x, y, gameMode);
         geometry.attributes.position.setZ(i, h);
         // Coloração por bioma baseada no modo de jogo
-        const color = new THREE.Color(TERRAIN_PRESETS[gameMode]?.biomas(h, m) || '#ffffff');
+        const color = new THREE.Color(TERRAIN_PRESETS[gameMode]?.biomes(h, m) || '#ffffff');
         colors.push(color.r, color.g, color.b);
       }
       if (!geometry.attributes.color || geometry.attributes.color.count !== geometry.attributes.position.count) {
@@ -86,9 +85,9 @@ const Terrain: React.FC<{
   );
 };
 
-const Player: React.FC = () => {
+const Player: React.FC<{ gameMode: string }> = ({ gameMode }) => {
   // O player está sempre no centro, então calcula a altura do terreno em (0,0)
-  const y = getHeight(0, 0, 'hunt') + 0.5;
+  const y = getHeight(0, 0, gameMode) + 0.5;
   return (
     <mesh position={[0, y, 0]} castShadow>
       <sphereGeometry args={[0.4, 32, 32]} />
@@ -96,11 +95,6 @@ const Player: React.FC = () => {
     </mesh>
   );
 };
-
-// Funções de geração dependentes do modo
-function useTerrainParams(gameMode: string): TerrainPreset {
-  return TERRAIN_PRESETS[gameMode] || TERRAIN_PRESETS['hunt'];
-}
 
 // Componente principal que renderiza o Canvas
 const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode = 'hunt' }) => {
@@ -118,7 +112,6 @@ const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode
   // Calcula a velocidade de deslocamento
   const velocityPerFrame = speed; // unidades por frame
   const velocityPerSecond = speed * 60; // unidades por segundo (assumindo 60 FPS)
-  const velocityPerMinute = velocityPerSecond * 60; // unidades por minuto
 
   // Nome do modo para exibir
   const getModeName = (mode: string) => {
@@ -190,8 +183,8 @@ const ProceduralTerrainWithPlayer: React.FC<{ gameMode?: string }> = ({ gameMode
         <ambientLight intensity={1.2} />
         <directionalLight position={[5, 10, 7]} intensity={2} castShadow />
         <OffsetController />
-        <Terrain offset={offset} viewRadius={viewRadius} spawnRadius={spawnRadius} gameMode={gameMode} />
-        <Player />
+        <Terrain offset={offset} gameMode={gameMode} />
+        <Player gameMode={gameMode} />
         
         {/* Contador de FPS e velocidade */}
         <Html position={[4, 4, 0]} style={{ 
