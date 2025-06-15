@@ -90,42 +90,6 @@ function GameHubScreen() {
           <div className="w-full text-center pt-6 pb-8">
             <span className="text-lg text-slate-300 tracking-widest uppercase font-semibold">ÁREA DE COMBATE DO PERSONAGEM</span>
           </div>
-          
-          {/* Área expandida de combate */}
-          <div className="flex-1 w-full flex flex-col items-center justify-center space-y-8">
-            {/* Barras de Status */}
-            <div className="w-full max-w-md space-y-4">
-              <div>
-                <div className="flex justify-between text-sm text-slate-300 mb-2">
-                  <span>VIDA</span>
-                  <span>{character.health}/{character.maxHealth}</span>
-                </div>
-                <div className="w-full bg-slate-700 rounded-full h-4">
-                  <div 
-                    className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-500"
-                    style={{ width: `${(character.health / character.maxHealth) * 100}%` }}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm text-slate-300 mb-2">
-                  <span>MANA</span>
-                  <span>100/100</span>
-                </div>
-                <div className="w-full bg-slate-700 rounded-full h-4">
-                  <div className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full w-full" />
-                </div>
-              </div>
-            </div>
-
-            {/* Botão de Atributos */}
-            <div className="text-center">
-              <button className="px-8 py-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white border border-slate-600/50 transition-colors font-semibold">
-                ATRIBUTOS E INVENTÁRIO
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     );
