@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Search, Filter, Coins, Package, TrendingUp, Clock, Star } from 'lucide-react';
+import { ShoppingCart, Search, Coins, Package, Clock } from 'lucide-react';
 
 interface MarketItem {
   id: string;

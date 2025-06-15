@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { Character, CharacterAttributes } from '../../types/game';
 import { Zap, Shield, Sword, Star, ArrowLeft, Check } from 'lucide-react';

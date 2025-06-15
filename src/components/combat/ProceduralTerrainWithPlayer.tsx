@@ -3,7 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import noise, { setNoiseSeed, setNoiseDetail } from "../../utils/perlin";
-import { TERRAIN_PRESETS, TerrainPreset } from '../../utils/terrain-presets';
+import { TERRAIN_PRESETS } from '../../utils/terrain-presets';
 
 // Inicializa o Perlin Noise com base no modo de jogo
 function initNoise(gameMode: string) {

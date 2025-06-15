@@ -142,9 +142,9 @@ const RankingFeature: React.FC = () => {
   const getRankColor = (rank: number) => {
     switch (rank) {
       case 1: return 'text-yellow-400';
-      case 2: return 'text-gray-300';
-      case 3: return 'text-amber-600';
-      default: return 'text-slate-300';
+      case 2: return 'text-gray-400';
+      case 3: return 'text-amber-400';
+      default: return 'text-slate-400';
     }
   };
 
@@ -154,17 +154,6 @@ const RankingFeature: React.FC = () => {
       case 2: return 'bg-gray-600/20';
       case 3: return 'bg-amber-600/20';
       default: return 'bg-slate-600/20';
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'Nível': return TrendingUp;
-      case 'PvP': return Target;
-      case 'Riqueza': return Award;
-      case 'Missões': return Star;
-      case 'Aliança': return Users;
-      default: return Trophy;
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useGame } from '../contexts/GameContext';
 import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';

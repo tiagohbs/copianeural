@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, Clock, Star, Award, Map, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react';
+import { Target, Clock, Star, Award, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react';
 
 interface Mission {
   id: string;

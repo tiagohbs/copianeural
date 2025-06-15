@@ -118,7 +118,7 @@ const GameLayout: React.FC = () => {
   const displayMode = selectedMode || 'Selecione um modo de jogo';
 
   return (
-    <div className={`min-h-screen flex flex-col ${modeColors[selectedMode] || modeColors['']}`}>
+    <div className={`min-h-screen flex flex-col ${(modeColors as Record<string, string>)[selectedMode] || modeColors['']}`}>
       {/* Header Fixo */}
       <div className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700/50 p-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

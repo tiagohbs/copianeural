@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { Plus, Trash2, Play, Sword, Shield, Zap, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

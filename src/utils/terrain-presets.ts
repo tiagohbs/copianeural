@@ -65,12 +65,33 @@ export function tournamentBiome(h: number, _m: number): string {
  * Altere os valores para personalizar cada ambiente
  */
 export interface TerrainPreset {
+  /**
+   * seed: Valor base para geração do ruído. Terrenos com seeds diferentes terão mapas diferentes.
+   */
   seed: number;
+  /**
+   * scale: Escala do ruído. Valores menores deixam o terreno mais suave e plano, valores maiores deixam mais acidentado.
+   */
   scale: number;
+  /**
+   * octaves: Quantidade de camadas de ruído (detalhe). Mais octaves = mais detalhes finos.
+   */
   octaves: number;
+  /**
+   * persistence: Influencia o quanto cada octave contribui para o relevo. Valores maiores = mais suavidade.
+   */
   persistence: number;
+  /**
+   * lacunarity: Multiplicador de frequência a cada octave. Valores maiores = mais "variação" e detalhes.
+   */
   lacunarity: number;
+  /**
+   * biomes: Função que recebe altura (h) e umidade (m) e retorna a cor do bioma para aquele ponto.
+   */
   biomes: (h: number, m: number) => string;
+  /**
+   * heightMult: Multiplicador final da altura do terreno. Útil para deixar o terreno mais plano ou mais montanhoso.
+   */
   heightMult?: number;
 }
 
