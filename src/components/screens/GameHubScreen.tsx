@@ -85,12 +85,47 @@ function GameHubScreen() {
   // Renderização condicional da área de combate
   function renderCombatArea() {
     return (
-      <div className="flex justify-center items-center w-full min-h-[400px]">
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-0 w-full max-w-4xl flex flex-col items-center" style={{ minHeight: '350px' }}>
-          <div className="w-full text-center pt-6 pb-2">
-            <span className="text-xs text-slate-300 tracking-widest uppercase">ÁREA DE COMBATE DO PERSONAGEM</span>
+      <div className="flex justify-center items-center w-full min-h-[500px]">
+        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-8 w-full max-w-6xl flex flex-col items-center" style={{ minHeight: '500px' }}>
+          <div className="w-full text-center pt-6 pb-8">
+            <span className="text-lg text-slate-300 tracking-widest uppercase font-semibold">ÁREA DE COMBATE DO PERSONAGEM</span>
           </div>
-          {/* Placeholder para futura área de combate */}
+          
+          {/* Área expandida de combate */}
+          <div className="flex-1 w-full flex flex-col items-center justify-center space-y-8">
+            {/* Barras de Status */}
+            <div className="w-full max-w-md space-y-4">
+              <div>
+                <div className="flex justify-between text-sm text-slate-300 mb-2">
+                  <span>VIDA</span>
+                  <span>{character.health}/{character.maxHealth}</span>
+                </div>
+                <div className="w-full bg-slate-700 rounded-full h-4">
+                  <div 
+                    className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-500"
+                    style={{ width: `${(character.health / character.maxHealth) * 100}%` }}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between text-sm text-slate-300 mb-2">
+                  <span>MANA</span>
+                  <span>100/100</span>
+                </div>
+                <div className="w-full bg-slate-700 rounded-full h-4">
+                  <div className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full w-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* Botão de Atributos */}
+            <div className="text-center">
+              <button className="px-8 py-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white border border-slate-600/50 transition-colors font-semibold">
+                ATRIBUTOS E INVENTÁRIO
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -170,51 +205,11 @@ function GameHubScreen() {
 
       <div className="max-w-7xl mx-auto p-4">
         <div className="flex flex-col h-[calc(100vh-200px)] justify-center">
-          {/* Área Central */}
+          {/* Área Central Expandida */}
           <div className="flex-1 flex flex-col items-center justify-center">
             {renderCombatArea()}
-            {/* Área de visualização do personagem */}
-            <div className="bg-slate-900/50 rounded-lg h-64 mb-6 flex items-center justify-center border border-slate-700/30">
-              <div className="text-center">
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white">
-                    {character.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <p className="text-slate-400">Personagem: {character.name}</p>
-              </div>
-            </div>
-            {/* Barras de Status */}
-            <div className="space-y-3">
-              <div>
-                <div className="flex justify-between text-sm text-slate-300 mb-1">
-                  <span>VIDA</span>
-                  <span>{character.health}/{character.maxHealth}</span>
-                </div>
-                <div className="w-full bg-slate-700 rounded-full h-3">
-                  <div 
-                    className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-500"
-                    style={{ width: `${(character.health / character.maxHealth) * 100}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm text-slate-300 mb-1">
-                  <span>MANA</span>
-                  <span>100/100</span>
-                </div>
-                <div className="w-full bg-slate-700 rounded-full h-3">
-                  <div className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full w-full" />
-                </div>
-              </div>
-            </div>
-            {/* Botão de Atributos */}
-            <div className="mt-6 text-center">
-              <button className="px-6 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white border border-slate-600/50 transition-colors">
-                ATRIBUTOS E INVENTÁRIO
-              </button>
-            </div>
           </div>
+          
           {/* Botões principais de modo de jogo */}
           <div className="w-full flex flex-wrap justify-center gap-4 mt-8">
             <button 
