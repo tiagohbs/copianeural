@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -33,14 +33,18 @@ const Player: React.FC<{ position: [number, number, number] }> = ({ position }) 
   );
 };
 
-// PlayerController precisa ser filho de Canvas para usar hooks do R3F
+// PlayerController - versão simplificada
 const PlayerController: React.FC = () => {
-  const [playerPos, setPlayerPos] = useState<[number, number, number]>([0, 0.5, 0]);
+  const meshRef = useRef<THREE.Mesh>(null);
   const keys = useRef<{ [key: string]: boolean }>({});
+  const position = useRef<[number, number, number]>([0, 0.5, 0]);
 
   useFrame(() => {
-    let [x, y, z] = playerPos;
+    if (!meshRef.current) return;
+    
+    let [x, y, z] = position.current;
     let moved = false;
+    
     if (keys.current["ArrowUp"] || keys.current["w"]) {
       z -= 0.1;
       moved = true;
@@ -57,9 +61,11 @@ const PlayerController: React.FC = () => {
       x += 0.1;
       moved = true;
     }
+    
     if (moved) {
       const yTerrain = getHeight(x, z) + 0.5;
-      setPlayerPos([x, yTerrain, z]);
+      position.current = [x, yTerrain, z];
+      meshRef.current.position.set(x, yTerrain, z);
     }
   });
 
@@ -78,13 +84,23 @@ const PlayerController: React.FC = () => {
     };
   }, []);
 
-  return <Player position={playerPos} />;
+  return (
+    <mesh ref={meshRef} position={position.current} castShadow>
+      <sphereGeometry args={[0.4, 32, 32]} />
+      <meshStandardMaterial color="#00bfff" />
+    </mesh>
+  );
 };
 
+// Componente principal que renderiza o Canvas
 const ProceduralTerrainWithPlayer: React.FC = () => {
   return (
     <div style={{ width: "100%", height: 300, borderRadius: 12, overflow: "hidden" }}>
-      <Canvas camera={{ position: [0, 12, 12], fov: 50 }} shadows>
+      <Canvas 
+        camera={{ position: [0, 12, 12], fov: 50 }} 
+        shadows
+        gl={{ antialias: true }}
+      >
         <ambientLight intensity={0.7} />
         <directionalLight position={[5, 10, 7]} intensity={1.2} castShadow />
         <Terrain />

@@ -36,6 +36,13 @@ const GameLayout: React.FC = () => {
     '': 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
   };
 
+  // Verificar se há personagem selecionado
+  useEffect(() => {
+    if (!character) {
+      dispatch({ type: 'SET_SCREEN', payload: 'character-selection' });
+    }
+  }, [character, dispatch]);
+
   // Sincronizar estado com a URL atual
   useEffect(() => {
     const path = location.pathname;
@@ -53,8 +60,8 @@ const GameLayout: React.FC = () => {
     }
   }, [location.pathname, navigate]);
 
+  // Se não há personagem, não renderizar o layout
   if (!character) {
-    dispatch({ type: 'SET_SCREEN', payload: 'character-selection' });
     return null;
   }
 
