@@ -136,14 +136,14 @@ function TerrainElements({ getHeight, size, pathWidth }: { getHeight: (x: number
   );
 }
 
-const Terrain: React.FC<{ offset: { x: number; y: number } }> = ({ offset }) => {
+const Terrain: React.FC<{ offset: { x: number; y: number }; elements: MapElement[] }> = ({ offset, elements }) => {
   const mesh = useRef<THREE.Mesh>(null);
   const size = 256;
   const planeSize = 256;
   const pathWidth = 8;
 
   // Elementos próximos ao personagem
-  const elements = useMemo(() =>
+  const elementsProc = useMemo(() =>
     generateProceduralElements(offset.x, offset.y, 32, pathWidth),
     [offset.x, offset.y, pathWidth]
   );
@@ -199,7 +199,7 @@ const Terrain: React.FC<{ offset: { x: number; y: number } }> = ({ offset }) => 
       <mesh ref={mesh} geometry={geometry} rotation-x={-Math.PI / 2} receiveShadow position={[0, 0, 0]}>
         <meshStandardMaterial color="#2ecc40" />
         {/* Renderização dos elementos procedurais */}
-        {elements.map((el, i) => {
+        {elementsProc.map((el, i) => {
           const y = getHeight(el.x - offset.x, el.z - offset.y);
           if (el.type === 'tree') return <Tree key={i} x={el.x} y={y} z={el.z} />;
           if (el.type === 'rock') return <Rock key={i} x={el.x} y={y} z={el.z} />;
@@ -234,14 +234,42 @@ const ProceduralTerrainWithPlayer: React.FC = () => {
   const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(true);
   const [inBattle, setInBattle] = useState(false);
+  const [defeatedEnemies, setDefeatedEnemies] = useState<Set<string>>(new Set());
   const speed = 0.08;
 
-  // Elementos próximos ao personagem (para detecção de inimigos)
+  // Parâmetros do cenário
   const pathWidth = 8;
-  const elements = useMemo(() =>
-    generateProceduralElements(offset.x, offset.y, 32, pathWidth),
-    [offset.x, offset.y, pathWidth]
-  );
+  const viewRadius = 32;
+
+  // Elementos próximos ao personagem (mantêm posição lateral ao caminho)
+  const elements = useMemo(() => {
+    const arr: MapElement[] = [];
+    for (let dx = -viewRadius; dx < viewRadius; dx += 3) {
+      for (let dz = 0; dz < viewRadius; dz += 3) {
+        // Lateral ao caminho
+        const lateral = (Math.random() > 0.5 ? 1 : -1) * (pathWidth / 2 + 2 + Math.floor(Math.random() * 10));
+        const x = lateral;
+        const z = offset.y + dz;
+        const r = pseudoRandom(x, z);
+        if (Math.abs(x) < pathWidth * 0.7) continue;
+        if (r < 0.07) arr.push({ type: 'tree', x, z });
+        else if (r < 0.12) arr.push({ type: 'rock', x, z });
+        else if (r < 0.15) arr.push({ type: 'water', x, z });
+        else if (r > 0.98) arr.push({ type: 'enemy', x, z });
+      }
+    }
+    return arr;
+  }, [offset.y]);
+
+  // Remove elementos fora da área de visualização (exceto inimigos ativos)
+  const visibleElements = elements.filter(el => {
+    if (el.type === 'enemy') {
+      // Identificador único para cada inimigo
+      const id = `${el.x.toFixed(2)}_${el.z.toFixed(2)}`;
+      return !defeatedEnemies.has(id) && el.z > offset.y - 2 && el.z < offset.y + viewRadius;
+    }
+    return el.z > offset.y - 2 && el.z < offset.y + viewRadius;
+  });
 
   // Controla o offset dentro do Canvas
   const OffsetController = () => {
@@ -256,19 +284,21 @@ const ProceduralTerrainWithPlayer: React.FC = () => {
   // Detecta proximidade com inimigo e pausa movimento
   useEffect(() => {
     if (inBattle) return;
-    const enemy = elements.find(
+    const enemy = visibleElements.find(
       (el) => el.type === 'enemy' && Math.abs(el.x - offset.x) < 1.2 && Math.abs(el.z - offset.y) < 1.2
     );
     if (enemy) {
       setIsMoving(false);
       setInBattle(true);
-      // Simula batalha: retoma movimento após 2 segundos
+      // Marca inimigo como derrotado após "batalha"
+      const id = `${enemy.x.toFixed(2)}_${enemy.z.toFixed(2)}`;
       setTimeout(() => {
+        setDefeatedEnemies(prev => new Set(prev).add(id));
         setInBattle(false);
         setIsMoving(true);
       }, 2000);
     }
-  }, [elements, offset, inBattle]);
+  }, [visibleElements, offset, inBattle]);
 
   return (
     <div style={{ width: "100%", height: 500, borderRadius: 12, overflow: "hidden", background: '#222' }}>
@@ -282,9 +312,8 @@ const ProceduralTerrainWithPlayer: React.FC = () => {
         <ambientLight intensity={1.2} />
         <directionalLight position={[5, 10, 7]} intensity={2} castShadow />
         <OffsetController />
-        <Terrain offset={offset} />
+        <Terrain offset={offset} elements={visibleElements} />
         <Player offset={offset} />
-        {/* Exemplo de overlay de batalha */}
         {inBattle && (
           <Html center style={{ pointerEvents: 'none', color: 'white', fontSize: 32 }}>
             Batalha!
