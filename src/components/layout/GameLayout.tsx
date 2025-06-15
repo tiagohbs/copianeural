@@ -1,41 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useGame } from '../../contexts/GameContext';
-import BattleModal from '../modals/BattleModal';
 import { 
   Sword, 
   Map, 
-  Package, 
   MessageCircle, 
   Settings, 
   LogOut,
-  Heart,
-  Star,
-  Zap,
   Trophy,
   Users,
   ShoppingCart,
   Target,
   Search
 } from 'lucide-react';
-import CombatAreaCaca from '../combat/CombatAreaCaca';
-import CombatAreaTorneio from '../combat/CombatAreaTorneio';
-import CombatAreaMasmorra from '../combat/CombatAreaMasmorra';
-import CombatAreaExplorar from '../combat/CombatAreaExplorar';
-import AliancaFeature from '../features/AliancaFeature';
-import MercadoFeature from '../features/MercadoFeature';
-import MissoesFeature from '../features/MissoesFeature';
-import RankingFeature from '../features/RankingFeature';
 
-/**
- * Tela principal do jogo (Game Hub)
- * Layout redesenhado baseado na interface fornecida
- */
-function GameHubScreen() {
+const GameLayout: React.FC = () => {
   const { state, dispatch } = useGame();
+  const navigate = useNavigate();
+  const location = useLocation();
   const character = state.selectedCharacter;
-  const [isBattleModalOpen, setIsBattleModalOpen] = useState(false);
   const [selectedMode, setSelectedMode] = useState('CAÇA');
-  const [pendingMode, setPendingMode] = useState('');
 
   // Cores temáticas para cada modo
   const modeColors = {
@@ -52,6 +36,23 @@ function GameHubScreen() {
     '': 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
   };
 
+  // Sincronizar estado com a URL atual
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/hunt')) setSelectedMode('CAÇA');
+    else if (path.includes('/tournament')) setSelectedMode('TORNEIO');
+    else if (path.includes('/dungeon')) setSelectedMode('MASMORRA');
+    else if (path.includes('/explore')) setSelectedMode('EXPLORAR');
+    else if (path.includes('/missions')) setSelectedMode('MISSÕES');
+    else if (path.includes('/market')) setSelectedMode('MERCADO');
+    else if (path.includes('/alliance')) setSelectedMode('ALIANÇA');
+    else if (path.includes('/ranking')) setSelectedMode('RANKING');
+    else if (path === '/game' || path === '/game/') {
+      setSelectedMode('CAÇA');
+      navigate('/game/hunt', { replace: true });
+    }
+  }, [location.pathname, navigate]);
+
   if (!character) {
     dispatch({ type: 'SET_SCREEN', payload: 'character-selection' });
     return null;
@@ -65,61 +66,54 @@ function GameHubScreen() {
     }
   };
 
-  // Função para selecionar modo (exceto torneio)
-  const handleSelectMode = (mode) => {
+  // Função para selecionar modo de jogo
+  const handleSelectMode = (mode: string) => {
     setSelectedMode(mode);
-  };
-
-  // Função para abrir modal do torneio
-  const handleOpenTorneio = () => {
-    setPendingMode('TORNEIO');
-    setIsBattleModalOpen(true);
-  };
-
-  // Função para fechar modal do torneio e aplicar cor
-  const handleCloseBattleModal = (mode) => {
-    setIsBattleModalOpen(false);
-    if (mode) {
-      setSelectedMode(mode);
-    } else if (pendingMode) {
-      setSelectedMode(pendingMode);
+    // Navegar para a rota correspondente
+    switch (mode) {
+      case 'CAÇA':
+        navigate('/game/hunt');
+        break;
+      case 'TORNEIO':
+        navigate('/game/tournament');
+        break;
+      case 'MASMORRA':
+        navigate('/game/dungeon');
+        break;
+      case 'EXPLORAR':
+        navigate('/game/explore');
+        break;
+      default:
+        navigate('/game/hunt');
     }
-    setPendingMode('');
+  };
+
+  // Função para selecionar funcionalidade
+  const handleSelectFeature = (feature: string) => {
+    setSelectedMode(feature);
+    switch (feature) {
+      case 'MISSÕES':
+        navigate('/game/missions');
+        break;
+      case 'MERCADO':
+        navigate('/game/market');
+        break;
+      case 'ALIANÇA':
+        navigate('/game/alliance');
+        break;
+      case 'RANKING':
+        navigate('/game/ranking');
+        break;
+    }
   };
 
   // Nome do modo selecionado para exibir no topo
   const displayMode = selectedMode || 'Selecione um modo de jogo';
 
-  // Renderização condicional da área de combate
-  function renderCombatArea() {
-    switch (selectedMode) {
-      case 'CAÇA':
-        return <CombatAreaCaca />;
-      case 'TORNEIO':
-      case 'GRUPO':
-      case 'SOLO':
-        return <CombatAreaTorneio />;
-      case 'MASMORRA':
-        return <CombatAreaMasmorra />;
-      case 'EXPLORAR':
-        return <CombatAreaExplorar />;
-      case 'MISSÕES':
-        return <MissoesFeature />;
-      case 'MERCADO':
-        return <MercadoFeature />;
-      case 'ALIANÇA':
-        return <AliancaFeature />;
-      case 'RANKING':
-        return <RankingFeature />;
-      default:
-        return null;
-    }
-  }
-
   return (
-    <div className={`min-h-screen ${modeColors[selectedMode] || modeColors['']}`}>
-      {/* Header */}
-      <div className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700/50 p-4">
+    <div className={`min-h-screen flex flex-col ${modeColors[selectedMode] || modeColors['']}`}>
+      {/* Header Fixo */}
+      <div className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700/50 p-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
@@ -136,10 +130,12 @@ function GameHubScreen() {
               </div>
             </div>
           </div>
+          
           {/* Nome do modo centralizado no header */}
           <div className="flex-1 flex justify-center">
             <h2 className="text-2xl font-bold text-white tracking-widest drop-shadow-lg uppercase">{displayMode}</h2>
           </div>
+          
           <div className="flex items-center space-x-3">
             <button className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-600/50 transition-colors">
               <Settings className="w-5 h-5" />
@@ -147,7 +143,10 @@ function GameHubScreen() {
             <button className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-600/50 transition-colors">
               <MessageCircle className="w-5 h-5" />
             </button>
-            <button className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-600/50 transition-colors">
+            <button 
+              onClick={handleLogout}
+              className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-600/50 transition-colors"
+            >
               <LogOut className="w-5 h-5" />
             </button>
           </div>
@@ -155,32 +154,32 @@ function GameHubScreen() {
       </div>
 
       {/* Botões secundários abaixo do header */}
-      <div className="bg-slate-800/50 border-b border-slate-700/30 p-3">
+      <div className="bg-slate-800/50 border-b border-slate-700/30 p-3 flex-shrink-0">
         <div className="max-w-7xl mx-auto flex justify-center gap-4">
           <button 
             className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MISSÕES' ? 'bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
-            onClick={() => handleSelectMode('MISSÕES')}
+            onClick={() => handleSelectFeature('MISSÕES')}
           >
             <Map className="w-4 h-4" />
             <span>MISSÕES</span>
           </button>
           <button 
             className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MERCADO' ? 'bg-gradient-to-r from-amber-600/80 to-amber-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
-            onClick={() => handleSelectMode('MERCADO')}
+            onClick={() => handleSelectFeature('MERCADO')}
           >
             <ShoppingCart className="w-4 h-4" />
             <span>MERCADO</span>
           </button>
           <button 
             className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='ALIANÇA' ? 'bg-gradient-to-r from-cyan-600/80 to-cyan-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
-            onClick={() => handleSelectMode('ALIANÇA')}
+            onClick={() => handleSelectFeature('ALIANÇA')}
           >
             <Users className="w-4 h-4" />
             <span>ALIANÇA</span>
           </button>
           <button 
             className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='RANKING' ? 'bg-gradient-to-r from-slate-600/80 to-slate-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
-            onClick={() => handleSelectMode('RANKING')}
+            onClick={() => handleSelectFeature('RANKING')}
           >
             <Trophy className="w-4 h-4" />
             <span>RANKING</span>
@@ -188,15 +187,19 @@ function GameHubScreen() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-4">
-        <div className="flex flex-col h-[calc(100vh-200px)] justify-center">
-          {/* Área Central Expandida */}
-          <div className="flex-1 flex flex-col items-center justify-center">
-            {renderCombatArea()}
+      {/* Área de Conteúdo Principal */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-7xl">
+            <Outlet />
           </div>
-          
-          {/* Botões principais de modo de jogo */}
-          <div className="w-full flex flex-wrap justify-center gap-4 mt-8">
+        </div>
+      </div>
+      
+      {/* Barra de Navegação Inferior Fixa */}
+      <div className="bg-slate-800/90 backdrop-blur-sm border-t border-slate-700/50 p-4 flex-shrink-0">
+        <div className="max-w-7xl mx-auto">
+          <div className="w-full flex flex-wrap justify-center gap-4">
             <button 
               className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='CAÇA' ? 'bg-gradient-to-r from-green-600/80 to-green-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
               onClick={() => handleSelectMode('CAÇA')}
@@ -206,7 +209,7 @@ function GameHubScreen() {
             </button>
             <button 
               className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='TORNEIO' ? 'bg-gradient-to-r from-red-600/80 to-red-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} 
-              onClick={handleOpenTorneio}
+              onClick={() => handleSelectMode('TORNEIO')}
             >
               <Sword className="w-5 h-5" />
               <span>TORNEIO</span>
@@ -228,15 +231,8 @@ function GameHubScreen() {
           </div>
         </div>
       </div>
-
-      {/* Modal de Batalha */}
-      <BattleModal 
-        isOpen={isBattleModalOpen} 
-        onClose={() => handleCloseBattleModal()} 
-        setMode={(mode) => handleCloseBattleModal(mode)}
-      />
     </div>
   );
-}
+};
 
-export default GameHubScreen;
+export default GameLayout; 

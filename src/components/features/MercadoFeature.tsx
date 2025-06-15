@@ -103,8 +103,8 @@ const MercadoFeature: React.FC = () => {
   });
 
   return (
-    <div className="flex justify-center items-center w-full min-h-[500px]">
-      <div className="bg-gradient-to-br from-amber-900 via-amber-800 to-amber-900 rounded-lg border border-amber-700/50 p-8 w-full max-w-6xl" style={{ minHeight: '500px' }}>
+    <div className="w-full">
+      <div className="bg-gradient-to-br from-amber-900 via-amber-800 to-amber-900 rounded-lg border border-amber-700/50 p-8 w-full max-w-6xl mx-auto">
         <div className="w-full text-center pt-6 pb-8">
           <span className="text-lg text-amber-200 tracking-widest uppercase font-semibold">MERCADO</span>
         </div>

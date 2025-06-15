@@ -19,7 +19,7 @@ function CharacterSelectionScreen() {
   const handlePlay = () => {
     if (selectedId) {
       dispatch({ type: 'SELECT_CHARACTER', payload: selectedId });
-      navigate('/jogo');
+      navigate('/game');
     }
   };
 

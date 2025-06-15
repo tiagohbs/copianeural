@@ -21,7 +21,7 @@ const HeroSection: FC = () => {
         </p>
         
         <button
-          onClick={() => window.location.href = '/jogar'}
+          onClick={() => window.location.href = '/game'}
           className="px-8 py-4 bg-purple-600 text-white text-xl rounded-lg 
                    hover:bg-purple-700 transform hover:scale-105 transition-all
                    shadow-lg hover:shadow-purple-500/50"
