@@ -26,6 +26,23 @@ function GameHubScreen() {
   const { state, dispatch } = useGame();
   const character = state.selectedCharacter;
   const [isBattleModalOpen, setIsBattleModalOpen] = useState(false);
+  const [selectedMode, setSelectedMode] = useState('CAÇA');
+  const [pendingMode, setPendingMode] = useState('');
+
+  // Cores temáticas para cada modo
+  const modeColors = {
+    'CAÇA': 'bg-gradient-to-br from-green-900 via-green-800 to-green-900',
+    'TORNEIO': 'bg-gradient-to-br from-red-900 via-red-800 to-red-900',
+    'MASMORRA': 'bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900',
+    'EXPLORAR': 'bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900',
+    'MISSÕES': 'bg-gradient-to-br from-yellow-900 via-yellow-800 to-yellow-900',
+    'MERCADO': 'bg-gradient-to-br from-amber-900 via-amber-800 to-amber-900',
+    'ALIANÇA': 'bg-gradient-to-br from-cyan-900 via-cyan-800 to-cyan-900',
+    'RANKING': 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
+    'GRUPO': 'bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-900',
+    'SOLO': 'bg-gradient-to-br from-orange-900 via-orange-800 to-orange-900',
+    '': 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
+  };
 
   if (!character) {
     dispatch({ type: 'SET_SCREEN', payload: 'character-selection' });
@@ -40,8 +57,45 @@ function GameHubScreen() {
     }
   };
 
+  // Função para selecionar modo (exceto torneio)
+  const handleSelectMode = (mode) => {
+    setSelectedMode(mode);
+  };
+
+  // Função para abrir modal do torneio
+  const handleOpenTorneio = () => {
+    setPendingMode('TORNEIO');
+    setIsBattleModalOpen(true);
+  };
+
+  // Função para fechar modal do torneio e aplicar cor
+  const handleCloseBattleModal = (mode) => {
+    setIsBattleModalOpen(false);
+    if (mode) {
+      setSelectedMode(mode);
+    } else if (pendingMode) {
+      setSelectedMode(pendingMode);
+    }
+    setPendingMode('');
+  };
+
+  // Nome do modo selecionado para exibir no topo
+  const displayMode = selectedMode || 'Selecione um modo de jogo';
+
+  // Renderização condicional da área de combate
+  function renderCombatArea() {
+    return (
+      <div className="flex justify-center items-center w-full min-h-[400px]">
+        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-8 w-full max-w-xl flex flex-col items-center">
+          <h2 className="text-2xl font-bold text-slate-300 mb-4 uppercase">Área de combate</h2>
+          {/* Placeholder para futura área de jogo */}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className={`min-h-screen ${modeColors[selectedMode] || modeColors['']}`}>
       {/* Header */}
       <div className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700/50 p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -60,7 +114,10 @@ function GameHubScreen() {
               </div>
             </div>
           </div>
-          
+          {/* Nome do modo centralizado no header */}
+          <div className="flex-1 flex justify-center">
+            <h2 className="text-2xl font-bold text-white tracking-widest drop-shadow-lg uppercase">{displayMode}</h2>
+          </div>
           <div className="flex items-center space-x-3">
             <button className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-600/50 transition-colors">
               <Settings className="w-5 h-5" />
@@ -76,39 +133,10 @@ function GameHubScreen() {
       </div>
 
       <div className="max-w-7xl mx-auto p-4">
-        <div className="grid grid-cols-12 gap-4 h-[calc(100vh-120px)]">
-          {/* Menu Lateral Esquerdo */}
-          <div className="col-span-2 space-y-2">
-            <button 
-              onClick={() => setIsBattleModalOpen(true)}
-              className="w-full p-4 bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-500/80 hover:to-red-600/80 rounded-lg text-white font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
-            >
-              <Sword className="w-5 h-5" />
-              <span>TORNEIO</span>
-            </button>
-            
-            <button className="w-full p-4 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
-              <Target className="w-5 h-5" />
-              <span>MASMORRA</span>
-            </button>
-            
-            <button className="w-full p-4 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
-              <Search className="w-5 h-5" />
-              <span>CAÇA</span>
-            </button>
-            
-            <button className="w-full p-4 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
-              <Map className="w-5 h-5" />
-              <span>EXPLORAR</span>
-            </button>
-          </div>
-
+        <div className="flex flex-col h-[calc(100vh-120px)] justify-center">
           {/* Área Central */}
-          <div className="col-span-7 bg-slate-800/30 rounded-lg border border-slate-700/50 p-6">
-            <div className="text-center text-slate-400 mb-4">
-              <h2 className="text-lg font-semibold mb-2">ÁREA DE COMBATE DO PERSONAGEM</h2>
-            </div>
-            
+          <div className="flex-1 flex flex-col items-center justify-center">
+            {renderCombatArea()}
             {/* Área de visualização do personagem */}
             <div className="bg-slate-900/50 rounded-lg h-64 mb-6 flex items-center justify-center border border-slate-700/30">
               <div className="text-center">
@@ -120,7 +148,6 @@ function GameHubScreen() {
                 <p className="text-slate-400">Personagem: {character.name}</p>
               </div>
             </div>
-
             {/* Barras de Status */}
             <div className="space-y-3">
               <div>
@@ -135,7 +162,6 @@ function GameHubScreen() {
                   />
                 </div>
               </div>
-              
               <div>
                 <div className="flex justify-between text-sm text-slate-300 mb-1">
                   <span>MANA</span>
@@ -146,7 +172,6 @@ function GameHubScreen() {
                 </div>
               </div>
             </div>
-
             {/* Botão de Atributos */}
             <div className="mt-6 text-center">
               <button className="px-6 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white border border-slate-600/50 transition-colors">
@@ -154,61 +179,40 @@ function GameHubScreen() {
               </button>
             </div>
           </div>
-
-          {/* Menu Lateral Direito */}
-          <div className="col-span-3 space-y-4">
-            {/* Avatar do Jogador */}
-            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-              <div className="text-center mb-4">
-                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-slate-600 to-slate-700 mb-2"></div>
-                <p className="text-slate-300 text-sm">MAIN PLANETÁRIO</p>
-              </div>
-            </div>
-
-            {/* Chat Global */}
-            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50 flex-1">
-              <h3 className="text-slate-300 font-semibold mb-3 text-center">CHAT GLOBAL</h3>
-              <div className="bg-slate-900/50 rounded-lg h-32 mb-3 p-3 text-xs text-slate-400">
-                <div className="space-y-1">
-                  <p><span className="text-emerald-400">Sistema:</span> Bem-vindo ao nexus</p>
-                  <p><span className="text-blue-400">Jogador1:</span> Alguém para raid?</p>
-                  <p><span className="text-purple-400">Admin:</span> Evento especial ativo</p>
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder="Digite sua mensagem..."
-                  className="flex-1 px-3 py-2 bg-slate-900/50 border border-slate-600/50 rounded text-slate-300 text-xs placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
-                />
-                <button className="px-3 py-2 bg-emerald-600/80 hover:bg-emerald-500/80 rounded text-white text-xs font-semibold transition-colors">
-                  →
-                </button>
-              </div>
-            </div>
-
-            {/* Menu de Navegação */}
-            <div className="space-y-2">
-              <button className="w-full p-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
-                <Map className="w-4 h-4" />
-                <span>MISSÕES</span>
-              </button>
-              
-              <button className="w-full p-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
-                <ShoppingCart className="w-4 h-4" />
-                <span>MERCADO</span>
-              </button>
-              
-              <button className="w-full p-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
-                <Users className="w-4 h-4" />
-                <span>ALIANÇA</span>
-              </button>
-              
-              <button className="w-full p-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
-                <Trophy className="w-4 h-4" />
-                <span>RANKING</span>
-              </button>
-            </div>
+          {/* Botões abaixo da área de combate */}
+          <div className="w-full flex flex-wrap justify-center gap-4 mt-8">
+            <button className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='CAÇA' ? 'bg-gradient-to-r from-green-600/80 to-green-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('CAÇA')}>
+              <Search className="w-5 h-5" />
+              <span>CAÇA</span>
+            </button>
+            <button className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='TORNEIO' ? 'bg-gradient-to-r from-red-600/80 to-red-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={handleOpenTorneio}>
+              <Sword className="w-5 h-5" />
+              <span>TORNEIO</span>
+            </button>
+            <button className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MASMORRA' ? 'bg-gradient-to-r from-purple-600/80 to-purple-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('MASMORRA')}>
+              <Target className="w-5 h-5" />
+              <span>MASMORRA</span>
+            </button>
+            <button className={`p-4 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='EXPLORAR' ? 'bg-gradient-to-r from-blue-600/80 to-blue-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('EXPLORAR')}>
+              <Map className="w-5 h-5" />
+              <span>EXPLORAR</span>
+            </button>
+            <button className={`p-3 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MISSÕES' ? 'bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('MISSÕES')}>
+              <Map className="w-4 h-4" />
+              <span>MISSÕES</span>
+            </button>
+            <button className={`p-3 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='MERCADO' ? 'bg-gradient-to-r from-amber-600/80 to-amber-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('MERCADO')}>
+              <ShoppingCart className="w-4 h-4" />
+              <span>MERCADO</span>
+            </button>
+            <button className={`p-3 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='ALIANÇA' ? 'bg-gradient-to-r from-cyan-600/80 to-cyan-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('ALIANÇA')}>
+              <Users className="w-4 h-4" />
+              <span>ALIANÇA</span>
+            </button>
+            <button className={`p-3 min-w-[140px] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${selectedMode==='RANKING' ? 'bg-gradient-to-r from-slate-600/80 to-slate-700/80 text-white' : 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'}`} onClick={() => handleSelectMode('RANKING')}>
+              <Trophy className="w-4 h-4" />
+              <span>RANKING</span>
+            </button>
           </div>
         </div>
       </div>
@@ -216,7 +220,8 @@ function GameHubScreen() {
       {/* Modal de Batalha */}
       <BattleModal 
         isOpen={isBattleModalOpen} 
-        onClose={() => setIsBattleModalOpen(false)} 
+        onClose={() => handleCloseBattleModal()} 
+        setMode={(mode) => handleCloseBattleModal(mode)}
       />
     </div>
   );

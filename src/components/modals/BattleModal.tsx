@@ -4,47 +4,32 @@ import { X, Sword, Target, Users, Compass } from 'lucide-react';
 interface BattleModalProps {
   isOpen: boolean;
   onClose: () => void;
+  setMode?: (mode: string) => void;
 }
 
 /**
  * Modal de seleção de batalha
  * Design atualizado para combinar com o novo layout
  */
-function BattleModal({ isOpen, onClose }: BattleModalProps) {
+function BattleModal({ isOpen, onClose, setMode }: BattleModalProps) {
   if (!isOpen) return null;
 
   const battleOptions = [
     {
-      title: 'Masmorra do Infinito',
-      description: 'Ruínas alienígenas com desafios crescentes',
+      title: 'Grupo',
+      description: 'Forme uma equipe com outros jogadores para enfrentar desafios cooperativos e chefes épicos. Requer estratégia e trabalho em equipe!',
+      icon: Users,
+      color: 'from-emerald-600/80 to-emerald-700/80',
+      hoverColor: 'hover:from-emerald-500/80 hover:to-emerald-600/80',
+      action: () => console.log('Modo Grupo selecionado')
+    },
+    {
+      title: 'Solo',
+      description: 'Enfrente batalhas sozinho, prove sua força e conquiste recompensas exclusivas para guerreiros solitários!',
       icon: Sword,
       color: 'from-red-600/80 to-red-700/80',
       hoverColor: 'hover:from-red-500/80 hover:to-red-600/80',
-      action: () => console.log('Masmorra do Infinito selecionada')
-    },
-    {
-      title: 'Caça',
-      description: 'Criaturas cósmicas em habitats naturais',
-      icon: Target,
-      color: 'from-emerald-600/80 to-emerald-700/80',
-      hoverColor: 'hover:from-emerald-500/80 hover:to-emerald-600/80',
-      action: () => console.log('Caça selecionada')
-    },
-    {
-      title: 'PVP',
-      description: 'Duelos entre guerreiros do nexus',
-      icon: Users,
-      color: 'from-purple-600/80 to-purple-700/80',
-      hoverColor: 'hover:from-purple-500/80 hover:to-purple-600/80',
-      action: () => console.log('PVP selecionado')
-    },
-    {
-      title: 'Exploração',
-      description: 'Descobrir novos territórios espaciais',
-      icon: Compass,
-      color: 'from-blue-600/80 to-blue-700/80',
-      hoverColor: 'hover:from-blue-500/80 hover:to-blue-600/80',
-      action: () => console.log('Exploração selecionada')
+      action: () => console.log('Modo Solo selecionado')
     }
   ];
 
@@ -54,8 +39,9 @@ function BattleModal({ isOpen, onClose }: BattleModalProps) {
     }
   };
 
-  const handleOptionClick = (action: () => void) => {
+  const handleOptionClick = (action: () => void, mode: string) => {
     action();
+    if (setMode) setMode(mode);
     onClose();
   };
 
@@ -93,7 +79,7 @@ function BattleModal({ isOpen, onClose }: BattleModalProps) {
             return (
               <button
                 key={index}
-                onClick={() => handleOptionClick(option.action)}
+                onClick={() => handleOptionClick(option.action, option.title.toUpperCase())}
                 className={`bg-slate-700/30 border border-slate-600/50 rounded-lg p-6 group hover:scale-105 transition-all duration-300 text-left ${option.hoverColor}`}
               >
                 <div className="flex items-start space-x-4">
