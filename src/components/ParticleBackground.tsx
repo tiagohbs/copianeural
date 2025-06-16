@@ -1,21 +1,14 @@
-import { FC, useCallback } from 'react';
+import { FC } from 'react';
 import Particles from '@tsparticles/react';
-import { loadFull } from 'tsparticles';
-import type { Engine } from '@tsparticles/engine';
 
 interface ParticleBackgroundProps {
   className?: string;
 }
 
 const ParticleBackground: FC<ParticleBackgroundProps> = ({ className = '' }) => {
-  const particlesInit = useCallback(async (engine: Engine) => {
-    await loadFull(engine);
-  }, []);
-
   return (
     <Particles
       id="tsparticles"
-      init={particlesInit}
       className={`absolute inset-0 ${className}`}
       options={{
         background: {
