@@ -1,7 +1,7 @@
 import { FC, useCallback } from 'react';
 import Particles from '@tsparticles/react';
 import { loadFull } from 'tsparticles';
-import type { Engine } from 'tsparticles-engine';
+import type { Engine } from '@tsparticles/engine';
 
 interface ParticleBackgroundProps {
   className?: string;
@@ -46,8 +46,7 @@ const ParticleBackground: FC<ParticleBackgroundProps> = ({ className = '' }) => 
           },
           number: {
             density: {
-              enable: true,
-              area: 800,
+              enable: true
             },
             value: 40,
           },

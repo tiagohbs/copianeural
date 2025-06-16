@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Sword, Users, Compass } from 'lucide-react';
+import { X, Sword, Users } from 'lucide-react';
 
 interface BattleModalProps {
   isOpen: boolean;
